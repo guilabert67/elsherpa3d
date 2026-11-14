@@ -1,0 +1,2 @@
+Perfiles de BRouter (https://github.com/abrensch/brouter, misc/profiles2), licencia MIT: ver LICENSE-BRouter.txt.
+Cambio de El Sherpa 3D: una línea «assign elsherpa_etiquetas» tras «---context:way» para que el servicio devuelva sac_scale, mtb:scale, smoothness, tracktype, surface, bicycle, access y foot. No cambia el cálculo de la ruta.

@@ -4,89 +4,117 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1a14">
+<meta name="description" content="Montañas de España en 3D con datos del IGN: relieve, ortofoto, senderos, cumbres, pendientes, sol y tus rutas.">
 <title>El Sherpa 3D · Montañas de España</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="iconos/icono-192.png">
+<link rel="apple-touch-icon" href="iconos/icono-192.png">
 <style>
-:root{--bg:#0b1a14;--panel:rgba(14,26,22,.92);--line:rgba(255,255,255,.12);--tx:#eef3ef;--mut:#9fb3a8;--acc:#7fd1a2;--warn:#ffcf6e;--err:#ff8a7a}
+:root{--bg:#0b1a14;--panel:rgba(14,26,22,.94);--line:rgba(255,255,255,.12);--tx:#eef3ef;--mut:#9fb3a8;--acc:#7fd1a2;--warn:#ffcf6e;--err:#ff8a7a}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
 #c{position:fixed;inset:0;display:block;touch-action:none}
 #labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
-.lb{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font-size:12px;font-weight:600;color:#fff8d8;text-shadow:0 0 3px #000,0 0 6px #000,0 1px 2px #000;padding-bottom:6px}
-.lb::after{content:"";position:absolute;left:50%;bottom:0;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:#ffd966;box-shadow:0 0 2px #000}
+.lb{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font-size:12px;font-weight:600;color:#fff8d8;text-shadow:0 0 3px #000,0 0 6px #000,0 1px 2px #000;padding-bottom:6px;pointer-events:auto;cursor:pointer}
+.lb::after{content:"";position:absolute;left:50%;bottom:0;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:#ffd966;box-shadow:0 0 2px #000}
 .lb small{font-weight:400;opacity:.85;margin-left:4px}
 .lb.hut{color:#d8f0ff}.lb.hut::after{background:#7cc4ff}
-#bar{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:flex;gap:4px;padding:5px;background:var(--panel);border:1px solid var(--line);border-radius:999px;z-index:5;backdrop-filter:blur(6px)}
-#bar button{background:none;border:0;color:var(--tx);padding:6px 11px;border-radius:999px;cursor:pointer;font:inherit;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:54px}
+.lb.sad{color:#e8e8e8;font-weight:500}.lb.sad::after{background:#ddd}
+#bar{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:flex;gap:2px;padding:5px;background:var(--panel);border:1px solid var(--line);border-radius:999px;z-index:5;backdrop-filter:blur(6px)}
+#bar button{background:none;border:0;color:var(--tx);padding:6px 9px;border-radius:999px;cursor:pointer;font:inherit;font-size:12.5px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px}
 #bar button span{font-size:17px;line-height:1}
 #bar button.on{background:rgba(127,209,162,.18);outline:1px solid rgba(127,209,162,.5)}
-.pn{position:fixed;top:calc(70px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(420px,calc(100vw - 20px));max-height:calc(100vh - 140px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;z-index:6;display:none;backdrop-filter:blur(6px)}
+.pn{position:fixed;top:calc(70px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(440px,calc(100vw - 20px));max-height:calc(100vh - 150px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;z-index:6;display:none;backdrop-filter:blur(6px)}
 .pn.open{display:block}
-.pn h3{margin:4px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
-.row{display:flex;align-items:center;gap:8px;margin:6px 0}
-.row label{flex:1;cursor:pointer;display:flex;align-items:center;gap:8px}
-select,input[type=text],input[type=search]{background:#10241c;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font:inherit;width:100%}
-input[type=range]{flex:1}
-.btn{background:#163328;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer;font:inherit}
-.btn:hover{background:#1d4434}
-.btn.p{background:#2f7a55;border-color:#3d9a6c}
+.pn h3,#card h3{margin:10px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.row{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}
+.row label{flex:1;cursor:pointer;display:flex;align-items:center;gap:8px;min-width:180px}
+select,input[type=text],input[type=search],input[type=date]{background:#10241c;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit}
+input[type=search],input[type=text]{width:100%}
+input[type=range]{flex:1;min-width:120px}
+.btn{background:#163328;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:6px 9px;cursor:pointer;font:inherit;font-size:13px}
+.btn:hover{background:#1d4434}.btn.p{background:#2f7a55;border-color:#3d9a6c}.btn.on{background:#2f7a55}
+.btn:disabled{opacity:.45;cursor:default}
 .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
-.list{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
-.list .g{padding:6px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);background:rgba(255,255,255,.03);position:sticky;top:0}
-.list .it{padding:7px 10px;cursor:pointer;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+.list{max-height:40vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.list .g{padding:6px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);background:#12261e;position:sticky;top:0}
+.list .it{padding:7px 10px;cursor:pointer;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center}
 .list .it:hover{background:rgba(127,209,162,.12)}
 .list .it small{color:var(--mut)}
 .mut{color:var(--mut);font-size:12px}
 hr{border:0;border-top:1px solid var(--line);margin:10px 0}
-#status{position:fixed;left:10px;bottom:calc(30px + env(safe-area-inset-bottom));z-index:4;max-width:min(440px,calc(100vw - 80px));font-size:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:none}
-#status.show{display:block}
-#status .ok{color:var(--acc)}#status .wa{color:var(--warn)}#status .er{color:var(--err)}
+table{width:100%;border-collapse:collapse;font-size:13px}td{padding:3px 0;border-bottom:1px solid var(--line)}td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.bar{display:flex;height:12px;border-radius:4px;overflow:hidden;margin:4px 0 2px}.bar i{display:block;height:100%}
+.leg{display:flex;flex-wrap:wrap;gap:3px 10px;font-size:11.5px;color:var(--mut)}
+.leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.w{padding:6px 8px;border-radius:8px;margin:5px 0;font-size:12.5px}
+.w.ok{background:rgba(127,209,162,.12);color:var(--acc)}.w.wa{background:rgba(255,207,110,.12);color:var(--warn)}.w.er{background:rgba(255,138,122,.12);color:var(--err)}
+#status{position:fixed;left:10px;bottom:calc(30px + env(safe-area-inset-bottom));z-index:4;max-width:min(460px,calc(100vw - 80px));font-size:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:none}
+#status.show{display:block}#status .ok{color:var(--acc)}#status .wa{color:var(--warn)}#status .er{color:var(--err)}
 #prog{height:3px;background:#20362d;border-radius:2px;overflow:hidden;margin-top:6px}#prog i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
 #attr{position:fixed;left:0;right:0;bottom:0;padding:4px 10px calc(4px + env(safe-area-inset-bottom));font-size:10.5px;color:#cfd9d3;background:linear-gradient(transparent,rgba(0,0,0,.55));z-index:3;pointer-events:none;text-align:center}
-#title{position:fixed;left:12px;top:calc(12px + env(safe-area-inset-top));z-index:4;font-weight:700;font-size:15px;text-shadow:0 1px 3px #000;max-width:30vw}
+#title{position:fixed;left:12px;top:calc(12px + env(safe-area-inset-top));z-index:4;font-weight:700;font-size:15px;text-shadow:0 1px 3px #000;max-width:28vw}
 #title small{display:block;font-weight:400;font-size:11.5px;color:#d8e4dd}
 #side{position:fixed;right:12px;bottom:calc(40px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;z-index:4}
 #side button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--tx);font-size:18px;cursor:pointer}
-#compass span{display:inline-block;transition:transform .1s}
+#compass span{display:inline-block}
 #drop{position:fixed;inset:0;background:rgba(47,122,85,.35);border:3px dashed var(--acc);display:none;align-items:center;justify-content:center;font-size:22px;z-index:20}
 #drop.show{display:flex}
-.route{display:flex;justify-content:space-between;gap:6px;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
-.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
-@media (max-width:640px){#bar button{min-width:44px;padding:5px 7px;font-size:11px}#title{display:none}}
+.route{display:flex;justify-content:space-between;gap:6px;padding:6px 0;border-top:1px solid var(--line);font-size:13px;align-items:center}
+.route label{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;flex:none}
+#profile{position:fixed;left:0;right:0;bottom:0;height:min(210px,34vh);background:var(--panel);border-top:1px solid var(--line);z-index:7;display:none;padding:6px 10px calc(6px + env(safe-area-inset-bottom))}
+#profile.show{display:flex;flex-direction:column}
+#profHead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px}
+#profHead b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
+#pc{flex:1;width:100%;min-height:0;touch-action:none}
+#tip{position:fixed;pointer-events:none;background:rgba(0,0,0,.85);padding:4px 7px;border-radius:6px;font-size:12px;display:none;white-space:nowrap;z-index:9}
+body.prof #status{bottom:calc(min(210px,34vh) + 10px)}body.prof #side{bottom:calc(min(210px,34vh) + 20px)}
+#card{position:fixed;right:12px;top:calc(70px + env(safe-area-inset-top));width:min(330px,calc(100vw - 24px));max-height:calc(100vh - 160px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;z-index:8;display:none}
+#card.show{display:block}
+#card .x{float:right;background:none;border:0;color:var(--tx);font-size:18px;cursor:pointer}
+.legend{display:flex;gap:6px;flex-wrap:wrap;font-size:11.5px;color:var(--mut);margin:2px 0 6px 26px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:3px;vertical-align:-1px}
+#drawHint{position:fixed;top:calc(68px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:#2f7a55;padding:6px 12px;border-radius:999px;font-size:13px;z-index:5;display:none}
+@media (max-width:640px){#bar button{min-width:42px;padding:5px 6px;font-size:10.5px}#title{display:none}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <div id="labels"></div>
 <div id="title">El Sherpa 3D<small id="zname">Elige una sierra</small></div>
+<div id="drawHint">Toca el relieve para poner puntos de la ruta</div>
 
 <div id="bar">
   <button data-p="pZonas"><span>⛰</span>Zonas</button>
   <button data-p="pCapas"><span>◧</span>Capas</button>
   <button data-p="pRutas"><span>〰</span>Rutas</button>
+  <button data-p="pAct"><span>⌚</span>Garmin</button>
+  <button id="bPlan"><span>⤳</span>Planificar</button>
   <button id="bFull"><span>⛶</span>Pantalla</button>
-  <a id="bPlan" href="rutas.html" style="text-decoration:none"><button><span>⤳</span>Planificar</button></a>
   <button data-p="pMas"><span>⋯</span>Más</button>
 </div>
 
 <div class="pn" id="pZonas">
   <h3>Buscar cualquier sitio de España</h3>
-  <form id="fSearch" class="row"><input id="qSearch" type="search" placeholder="Pico, sierra, pueblo… (ej. Peña Santa)"><button class="btn p">Ir</button></form>
+  <form id="fSearch" class="row" style="flex-wrap:nowrap"><input id="qSearch" type="search" placeholder="Pico, sierra, pueblo… (ej. Peña Santa)"><button class="btn p">Ir</button></form>
   <div id="searchRes"></div>
-  <h3 style="margin-top:12px">Catálogo de sierras</h3>
+  <h3>Catálogo de sierras</h3>
   <input id="qCat" type="search" placeholder="Filtrar catálogo…">
   <div class="list" id="catList" style="margin-top:6px"></div>
   <hr>
   <div class="row"><span style="flex:1">Tamaño de la zona</span>
-    <select id="selSize" style="width:auto"><option>5</option><option>8</option><option>10</option><option selected>12</option><option>15</option><option>20</option><option>25</option><option>30</option></select> km</div>
+    <select id="selSize"><option>5</option><option>8</option><option>10</option><option selected>12</option><option>15</option><option>20</option><option>30</option><option>40</option><option>50</option><option>60</option></select> km</div>
+  <p class="mut" style="margin:0">De 40 a 60 km se ve la sierra entera con menos detalle, y al acercarte se carga solo el detalle de lo que tienes delante.</p>
   <div class="row"><span style="flex:1">Detalle del relieve</span>
-    <select id="selDem" style="width:auto"><option value="25">MDT 25 m (rápido)</option><option value="5">MDT 5 m (zonas ≤ 8 km)</option></select></div>
-  <div class="mut">Moverse a la zona de al lado:</div>
+    <select id="selDem"><option value="25">MDT 25 m (rápido)</option><option value="5">MDT 5 m (zonas ≤ 8 km)</option></select></div>
+  <div class="mut">Pasar a la zona de al lado:</div>
   <div class="grid" style="margin-top:6px">
     <span></span><button class="btn" data-mv="0,1">↑ Norte</button><span></span>
     <button class="btn" data-mv="-1,0">← Oeste</button><button class="btn" id="bReload">↻ Recargar</button><button class="btn" data-mv="1,0">Este →</button>
     <span></span><button class="btn" data-mv="0,-1">↓ Sur</button><span></span>
   </div>
-  <p class="mut">Doble clic (o doble toque) sobre el relieve: centra ahí una zona nueva.</p>
+  <p class="mut">Doble clic (o doble toque) sobre el relieve: nueva zona centrada ahí.</p>
 </div>
 
 <div class="pn" id="pCapas">
@@ -96,37 +124,87 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
   <div class="row"><label><input type="radio" name="base" value="mtn"> Mapa topográfico IGN (MTN)</label></div>
   <div class="row"><label><input type="radio" name="base" value="otm"> OpenTopoMap</label></div>
   <div class="row"><label><input type="radio" name="base" value="none"> Sin fondo (solo relieve)</label></div>
+  <div class="row"><label><input type="checkbox" id="cHiTex"> Imagen en alta resolución (más lenta)</label></div>
   <h3>Encima</h3>
   <div class="row"><label><input type="checkbox" id="cShade" checked> Relieve sombreado</label></div>
   <div class="row"><label><input type="checkbox" id="cHypso"> Altitud (colores)</label></div>
+  <div class="row"><label><input type="checkbox" id="cSlope"> Pendientes de más de 30° (aludes)</label></div>
+  <div class="legend" id="slopeLeg" style="display:none"><span><i style="background:#ffeb3b"></i>30–35°</span><span><i style="background:#ff9800"></i>35–40°</span><span><i style="background:#f44336"></i>40–45°</span><span><i style="background:#9c27b0"></i>más de 45°</span><span>· con el MDT de 25 m las pendientes cortas salen algo más suaves de lo que son</span></div>
   <div class="row"><label><input type="checkbox" id="cCont"> Curvas de nivel</label>
-    <select id="selCont" style="width:auto"><option>10</option><option selected>20</option><option>50</option><option>100</option></select> m</div>
+    <select id="selCont"><option>10</option><option selected>20</option><option>50</option><option>100</option></select> m</div>
   <div class="row"><label><input type="checkbox" id="cTrails" checked> Senderos y pistas (OpenStreetMap)</label></div>
-  <div class="row"><label><input type="checkbox" id="cLabels" checked> Nombres de cumbres y refugios</label></div>
+  <div class="row" style="margin-left:26px"><span class="mut">Colorear por</span><select id="selTrailCol"><option value="sac" selected>dificultad a pie (T1–T6)</option><option value="mtb">dificultad BTT (S0–S5)</option><option value="tipo">tipo de camino</option></select></div>
+  <div class="legend" id="trailLeg"></div>
+  <div id="trailSum" style="margin-left:26px"></div>
+  <div class="row"><label><input type="checkbox" id="cWmt"> Rutas señalizadas GR, PR y BTT</label></div>
+  <div class="row"><label><input type="checkbox" id="cParks" checked> Espacios protegidos (límites)</label></div>
+  <div id="parkList" class="mut" style="margin-left:26px"></div>
+  <div class="row"><label><input type="checkbox" id="cLabels" checked> Nombres de cumbres, collados y refugios</label></div>
+  <h3>Sol</h3>
+  <div class="row"><label><input type="checkbox" id="cSun"> Sol real con sombras (fecha y hora)</label></div>
+  <div id="sunBox" style="display:none">
+   <div class="row"><input type="date" id="sunDate"><button class="btn" id="bNow">Ahora</button></div>
+   <div class="row"><span>Hora</span><input type="range" id="sunHour" min="0" max="24" step="0.25"><b id="sunHourTxt"></b></div>
+   <div class="mut" id="sunTxt"></div>
+  </div>
+  <div class="row" id="lightRow"><span>Luz (dirección)</span><input type="range" id="rSun" min="0" max="360" step="5" value="315"></div>
   <h3>Relieve</h3>
   <div class="row"><span>Exageración</span><input type="range" id="rExag" min="1" max="2.5" step="0.1" value="1"><span id="vExag">1,0×</span></div>
-  <div class="row"><span>Luz (hora)</span><input type="range" id="rSun" min="0" max="360" step="5" value="315"></div>
-  <div class="row"><label><input type="checkbox" id="cHiTex"> Imagen en alta resolución (más lenta)</label></div>
 </div>
 
 <div class="pn" id="pRutas">
+  <h3>Dibujar una ruta sobre el relieve</h3>
+  <div class="row">
+   <select id="drawMode"><option value="hike">Senderismo</option><option value="mtb">BTT</option><option value="track">Pistas</option></select>
+   <button class="btn" id="bDraw">✎ Empezar a dibujar</button>
+   <button class="btn" id="bDrawUndo" disabled>↶</button><button class="btn" id="bDrawLoop" disabled>⟲ Circular</button><button class="btn" id="bDrawClear" disabled>✕</button>
+  </div>
+  <div id="drawMsg" class="mut">La ruta sigue los caminos reales (BRouter) y te dice distancia, desnivel, dificultad y si vale para la actividad.</div>
+  <div id="drawReport"></div>
   <h3>Tus rutas</h3>
-  <p class="mut">GPX, KML, KMZ o TCX. Puedes elegir varios o arrastrarlos a la ventana. Se leen en tu dispositivo; no se suben a ningún sitio. Si la ruta cae fuera de la zona, la zona se centra en ella.</p>
-  <input type="file" id="fRoute" accept=".gpx,.kml,.kmz,.tcx" multiple class="btn" style="width:100%">
+  <p class="mut">GPX, KML, KMZ, TCX o FIT: elige varios o arrástralos a la ventana. Se leen en tu dispositivo, no se suben a ningún sitio.</p>
+  <input type="file" id="fRoute" accept=".gpx,.kml,.kmz,.tcx,.fit" multiple class="btn" style="width:100%">
   <div id="routeList"></div>
+</div>
+
+<div class="pn" id="pAct">
+  <h3>Tus actividades del Garmin</h3>
+  <p class="mut">Elige la carpeta de actividades del reloj (por ejemplo <b>08-salud › garmin-ai › Carpetas Garmin › Activity</b>) o los ficheros FIT o GPX sueltos. Se leen en tu dispositivo; nada sale de él. El navegador no puede leer tu disco por su cuenta: hay que elegirla cada vez.</p>
+  <div class="row">
+   <label class="btn" style="flex:none;min-width:0">📁 Elegir carpeta<input type="file" id="fActDir" webkitdirectory multiple hidden></label>
+   <label class="btn" style="flex:none;min-width:0">📄 Elegir ficheros<input type="file" id="fAct" accept=".fit,.gpx,.tcx" multiple hidden></label>
+  </div>
+  <div id="actMsg" class="mut"></div>
+  <div class="row"><button class="btn" id="bActZone" disabled>Ver en el mapa las de esta zona</button><button class="btn" id="bActNone" disabled>Quitar del mapa</button></div>
+  <input id="qAct" type="search" placeholder="Filtrar por fecha o deporte (ej. 2026-10, bici)…" style="display:none">
+  <div class="list" id="actList" style="display:none;margin-top:6px"></div>
 </div>
 
 <div class="pn" id="pMas">
   <h3>Compartir</h3>
-  <div class="row"><input type="text" id="shareUrl" readonly><button class="btn" id="bCopy">Copiar</button></div>
-  <p class="mut">El enlace guarda la zona, el tamaño y la vista.</p>
+  <div class="row" style="flex-wrap:nowrap"><input type="text" id="shareUrl" readonly><button class="btn" id="bCopy">Copiar</button></div>
+  <p class="mut">El enlace guarda la zona, el tamaño, el fondo y la vista.</p>
+  <h3>Sin conexión</h3>
+  <p class="mut">Todo lo que ves queda guardado en este dispositivo y sirve sin cobertura. Guarda la zona aquí para encontrarla luego. Para usarla en el móvil, ábrela allí con conexión una vez y pulsa «Guardar».</p>
+  <div class="row"><button class="btn p" id="bSave">💾 Guardar esta zona</button><button class="btn" id="bClearCache">Borrar lo guardado</button></div>
+  <div id="savedList"></div>
+  <div class="mut" id="storeTxt"></div>
   <h3>Controles</h3>
-  <p class="mut">Ratón: arrastrar = mover · Ctrl + arrastrar o botón derecho = girar e inclinar · rueda = zoom. Móvil: un dedo mueve, dos dedos giran y hacen zoom. Doble clic: nueva zona centrada ahí.</p>
+  <p class="mut">Ratón: arrastrar = mover · Ctrl + arrastrar o botón derecho = girar e inclinar · rueda = zoom. Móvil: un dedo mueve; dos dedos giran y hacen zoom. Toca un nombre para ver su ficha y el tiempo.</p>
   <h3>Datos y privacidad</h3>
-  <p class="mut">Relieve: MDT05/MDT25 del IGN (servicio WCS de IDEE). Imagen: PNOA, mapa base y MTN del IGN/CNIG, licencia CC BY 4.0 (ign.es). Senderos, cumbres y refugios: © colaboradores de OpenStreetMap (ODbL), en teselas de OpenFreeMap. Búsqueda: Nominatim (OpenStreetMap). OpenTopoMap: CC BY-SA.</p>
-  <p class="mut">La página pide los datos directamente a esos servidores (ign.es, idee.es, openfreemap.org, nominatim.openstreetmap.org, opentopomap.org) y a jsdelivr.net para la librería 3D: reciben tu dirección IP como en cualquier visita web. La página no guarda nada ni usa cookies.</p>
-  <p class="mut">Inspirada en «La Pedriza en 3D»; código propio.</p>
+  <p class="mut">Relieve: MDT05/MDT25 del IGN (WCS de IDEE). Imagen: PNOA, mapa base y MTN del IGN/CNIG, CC BY 4.0. Cumbres, refugios y espacios protegidos: © colaboradores de OpenStreetMap (ODbL), en teselas de OpenFreeMap. Senderos con su dificultad: OpenStreetMap, pedidos al servidor Overpass de OpenStreetMap Francia o, si no responde, a Postpass de Geofabrik. Rutas trazadas: BRouter. Rutas señalizadas: Waymarked Trails (CC BY-SA). Tiempo: Open-Meteo (CC BY 4.0). Búsqueda: Nominatim. OpenTopoMap: CC BY-SA.</p>
+  <p class="mut">La página pide los datos directamente a esos servicios (ign.es, idee.es, openfreemap.org, overpass.openstreetmap.fr, postpass.geofabrik.de, overpass-api.de, brouter.de, waymarkedtrails.org, open-meteo.com, nominatim.openstreetmap.org, opentopomap.org) y a jsdelivr.net, que reciben tu IP como en cualquier visita web. No hay servidor propio ni cookies. Tus rutas y actividades se leen en tu dispositivo y no se envían a nadie, salvo los puntos que marcas al dibujar una ruta, que van a BRouter para trazarla.</p>
 </div>
+
+<div id="card"><button class="x" id="cardX">✕</button><div id="cardBody"></div></div>
+
+<div id="profile">
+ <div id="profHead"><b id="profName"></b><span id="profStats" class="mut"></span><span style="flex:1"></span>
+  <button class="btn" id="bFly">▶ Sobrevolar</button><select id="flySpeed" class="btn"><option value="1">×1</option><option value="2" selected>×2</option><option value="4">×4</option><option value="8">×8</option></select>
+  <button class="btn" id="bProfX">✕</button></div>
+ <canvas id="pc"></canvas>
+</div>
+<div id="tip"></div>
 
 <div id="side">
   <button id="compass" title="Norte arriba"><span>➤</span></button>
@@ -134,495 +212,11 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
 </div>
 <div id="status"><div id="stTxt"></div><div id="prog"><i></i></div></div>
 <div id="attr">Relieve e imagen © IGN/CNIG (CC BY 4.0) · Senderos y nombres © colaboradores de OpenStreetMap (ODbL)</div>
-<div id="drop">Suelta aquí tus rutas</div>
+<div id="drop">Suelta aquí tus rutas o actividades</div>
 
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
 </script>
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-// ---------- Catálogo (coordenadas de la cumbre de referencia, OpenStreetMap/Nominatim) ----------
-const CAT = [
- ['Pirineos',[
-  ['Ordesa y Monte Perdido','Monte Perdido',42.6755,0.0344,16],
-  ['Maladeta','Aneto',42.6311,0.6567,14],
-  ['Posets','Pico de Posets',42.6546,0.4352,12],
-  ['Pica d\'Estats','Pica d\'Estats',42.6670,1.3979,12],
-  ['Collarada','Collarada',42.7142,-0.4706,10],
-  ['Sierra de Guara','Tozal de Guara',42.2887,-0.2294,14],
-  ['Pedraforca','Pollegó Superior',42.2399,1.7029,10],
-  ['Serra del Cadí','Vulturó',42.2858,1.6364,16]]],
- ['Cordillera Cantábrica y Galicia',[
-  ['Picos de Europa (Macizo Central)','Torre Cerredo',43.1978,-4.8529,16],
-  ['Naranjo de Bulnes','Picu Urriellu',43.2008,-4.8177,10],
-  ['Ubiña','Peña Ubiña',43.0183,-5.9567,12],
-  ['Ancares','Cuíña',42.8442,-6.8328,12],
-  ['Trevinca','Pena Trevinca',42.2424,-6.7961,14]]],
- ['País Vasco y Navarra',[
-  ['Urkiola','Anboto',43.0879,-2.5962,10],
-  ['Gorbeia','Cruz de Gorbeia',43.0339,-2.7814,12],
-  ['Aralar','Txindoki (Larrunarri)',43.0227,-2.0884,12]]],
- ['Sistema Ibérico',[
-  ['Moncayo','Moncayo',41.7872,-1.8397,14],
-  ['Picos de Urbión','Urbión',42.0114,-2.8785,12],
-  ['Sierra de la Demanda','San Lorenzo',42.2426,-2.9726,12],
-  ['Sierra Cebollera','Cebollera',41.9980,-2.6736,12],
-  ['Javalambre','Alto de las Barracas',40.0773,-1.0907,14],
-  ['Penyagolosa','Penyagolosa',40.2228,-0.3497,12]]],
- ['Sistema Central',[
-  ['La Pedriza','Manzanares el Real',40.7646,-3.8913,12],
-  ['Peñalara','Peñalara',40.8500,-3.9561,12],
-  ['Siete Picos','Siete Picos',40.7815,-4.0334,10],
-  ['Sierra de Ayllón','Pico del Lobo',41.1832,-3.4663,12],
-  ['Sierra de Gredos','Almanzor',40.2460,-5.2975,14],
-  ['Sierra de Béjar','Canchal de la Ceja',40.3045,-5.7289,12],
-  ['Peña de Francia','Peña de Francia',40.5123,-6.1690,10],
-  ['Sierra de Gata','Jálama',40.2387,-6.7556,12]]],
- ['Centro y Sur',[
-  ['Montes de Toledo','Rocigalgo',39.5275,-4.6157,14],
-  ['Sierra Nevada','Mulhacén',37.0534,-3.3116,16],
-  ['Sierra Mágina','Mágina',37.7260,-3.4641,12],
-  ['Sierra de las Nieves','Torrecilla',36.6759,-4.9962,12],
-  ['Sierra de Grazalema','El Torreón',36.7657,-5.4225,12],
-  ['Torcal de Antequera','El Torcal',36.9698,-4.5369,8],
-  ['Aitana','Aitana',38.6496,-0.2661,12]]],
- ['Cataluña',[
-  ['Montserrat','Sant Jeroni',41.6054,1.8115,10],
-  ['Montseny','Turó de l\'Home',41.7765,2.4348,14]]],
- ['Islas',[
-  ['Serra de Tramuntana','Puig Major',39.8072,2.7941,14],
-  ['Teide','Teide',28.2727,-16.6423,18],
-  ['Cumbre de Gran Canaria','Roque Nublo',27.9708,-15.6126,14],
-  ['Caldera de Taburiente','Roque de los Muchachos',28.7542,-17.8849,14]]]
-];
-
-// ---------- Utilidades ----------
-const $=s=>document.querySelector(s);
-const fmt=(n,d=0)=>n.toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
-const statusEl=$('#status'),stTxt=$('#stTxt'),progEl=$('#prog i');
-const LOG={};
-function setStatus(key,html,cls=''){LOG[key]={html,cls};renderStatus()}
-function clearStatus(key){delete LOG[key];renderStatus()}
-let stTimer=null;
-function renderStatus(){const k=Object.keys(LOG);stTxt.innerHTML=k.map(x=>`<div class="${LOG[x].cls}">${LOG[x].html}</div>`).join('');statusEl.classList.toggle('show',k.length>0);
- clearTimeout(stTimer);if(k.length&&k.every(x=>LOG[x].cls==='ok'))stTimer=setTimeout(()=>{for(const x of Object.keys(LOG))if(LOG[x].cls==='ok')delete LOG[x];renderStatus()},5000)}
-function setProg(f){progEl.style.width=Math.round(f*100)+'%'}
-async function fetchT(url,ms=30000,opt={}){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(url,{...opt,signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return r}finally{clearTimeout(t)}}
-const M_LAT=110574, mLon=lat=>111320*Math.cos(lat*Math.PI/180);
-
-// ---------- Escena ----------
-const canvas=$('#c');
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0xa9c6d8);
-scene.fog=new THREE.Fog(0xa9c6d8,30000,90000);
-const camera=new THREE.PerspectiveCamera(45,1,10,300000);
-const controls=new OrbitControls(camera,canvas);
-controls.enableDamping=true;controls.dampingFactor=.08;controls.screenSpacePanning=false;controls.maxPolarAngle=Math.PI*0.47;
-controls.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE};
-controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_ROTATE};
-function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
-addEventListener('resize',resize);resize();
-const MAXTEX=renderer.capabilities.maxTextureSize;
-
-const blankTex=new THREE.DataTexture(new Uint8Array([0,0,0,0]),1,1);blankTex.needsUpdate=true;
-const uni={
- uMap:{value:blankTex},uUseMap:{value:0},uOver:{value:blankTex},uUseOver:{value:0},
- uShade:{value:1},uHypso:{value:0},uCont:{value:0},uContInt:{value:20},
- uHmin:{value:0},uHmax:{value:2000},uExag:{value:1},uSun:{value:new THREE.Vector3(-.5,.6,-.5).normalize()}
-};
-const mat=new THREE.ShaderMaterial({uniforms:uni,
-vertexShader:`
-attribute float hgt;
-varying vec2 vUv; varying vec3 vN; varying float vH; varying float vFog;
-uniform float uExag;
-void main(){vUv=uv;vN=normalize(vec3(normal.x,normal.y/uExag,normal.z));vH=hgt;
- vec4 mv=modelViewMatrix*vec4(position.x,position.y*uExag,position.z,1.);vFog=-mv.z;gl_Position=projectionMatrix*mv;}`,
-fragmentShader:`
-uniform sampler2D uMap,uOver;uniform float uUseMap,uUseOver,uShade,uHypso,uCont,uContInt,uHmin,uHmax;uniform vec3 uSun;
-varying vec2 vUv;varying vec3 vN;varying float vH;varying float vFog;
-vec3 ramp(float t){
- vec3 c0=vec3(.36,.55,.33),c1=vec3(.62,.70,.40),c2=vec3(.86,.80,.52),c3=vec3(.74,.55,.38),c4=vec3(.60,.52,.48),c5=vec3(.97,.97,.97);
- t=clamp(t,0.,1.)*5.;
- if(t<1.)return mix(c0,c1,t);if(t<2.)return mix(c1,c2,t-1.);if(t<3.)return mix(c2,c3,t-2.);if(t<4.)return mix(c3,c4,t-3.);return mix(c4,c5,t-4.);}
-void main(){
- vec3 n=normalize(vN);
- vec3 col=uUseMap>.5?texture2D(uMap,vUv).rgb:vec3(.82,.82,.80);
- if(uHypso>.5){vec3 h=ramp((vH-uHmin)/max(uHmax-uHmin,1.));col=uUseMap>.5?mix(col,h,.55):h;}
- if(uShade>.5){float d=max(dot(n,uSun),0.);float k=uUseMap>.5?(.55+.6*d):(.30+.85*d);col*=k;}
- if(uCont>.5){float v=vH/uContInt;float w=fwidth(v);float l=1.-smoothstep(.0,1.,abs(fract(v-.5)-.5)/max(w,1e-4));
-  float vi=vH/(uContInt*5.);float wi=fwidth(vi);float li=1.-smoothstep(.0,1.6,abs(fract(vi-.5)-.5)/max(wi,1e-4));
-  col=mix(col,vec3(.42,.22,.08),max(l*.55,li*.85));}
- if(uUseOver>.5){vec4 o=texture2D(uOver,vUv);col=mix(col,o.rgb,o.a);}
- float f=smoothstep(30000.,90000.,vFog);col=mix(col,vec3(.66,.78,.85),f);
- gl_FragColor=vec4(col,1.);
-}`,
-extensions:{derivatives:true}});
-
-let mesh=null, Z=null; // zona activa
-const skirtMat=new THREE.MeshBasicMaterial({color:0x5b4a3a});
-
-// ---------- TIFF del WCS (sin comprimir, Int16, una banda) ----------
-function parseTiff(buf){
- const d=new DataView(buf);const le=d.getUint16(0)===0x4949;
- const u16=o=>d.getUint16(o,le),u32=o=>d.getUint32(o,le);
- if(u16(2)!==42)throw new Error('respuesta del MDT no es un TIFF');
- const ifd=u32(4),n=u16(ifd),T={};
- for(let i=0;i<n;i++){const e=ifd+2+i*12,tag=u16(e),type=u16(e+2),cnt=u32(e+4);
-  const inl=(type===3&&cnt<=2)||(type===4&&cnt===1);T[tag]={type,cnt,off:e+8,val:inl?(type===3?u16(e+8):u32(e+8)):u32(e+8)}}
- const W=T[256].val,H=T[257].val,bps=T[258].val,cmp=T[259].val,sf=T[339]?T[339].val:1;
- if(cmp!==1)throw new Error('TIFF comprimido (tipo '+cmp+') no soportado');
- if(bps!==16&&bps!==32)throw new Error('TIFF de '+bps+' bits no soportado');
- const arr=(t)=>{const a=[];for(let i=0;i<t.cnt;i++)a.push(t.cnt===1?t.val:(t.type===3?u16(t.val+i*2):u32(t.val+i*4)));return a};
- const offs=arr(T[273]),cnts=arr(T[279]);
- const out=new Float32Array(W*H);let k=0;const bpp=bps/8;
- for(let s=0;s<offs.length;s++){for(let j=0;j<cnts[s]&&k<W*H;j+=bpp){
-  let v=bps===16?(sf===2?d.getInt16(offs[s]+j,le):d.getUint16(offs[s]+j,le)):(sf===3?d.getFloat32(offs[s]+j,le):d.getInt32(offs[s]+j,le));out[k++]=v}}
- if(k!==W*H)throw new Error(`TIFF incompleto: ${k} de ${W*H} celdas`);
- const dbl=(t,c)=>Array.from({length:c},(_,i)=>d.getFloat64(t.val+i*8,le));
- const sc=dbl(T[33550],3),tp=dbl(T[33922],6);
- return {W,H,data:out,lon0:tp[3],lat0:tp[4],dLon:sc[0],dLat:sc[1]};
-}
-
-// ---------- Carga de una zona ----------
-let loadSeq=0;
-async function loadZone(z){
- const seq=++loadSeq;
- Z=z;$('#zname').textContent=`${z.name}${z.sub?' · '+z.sub:''} · ${z.size} km`;
- document.title=z.name+' · El Sherpa 3D';
- const half=z.size/2;
- const bb={s:z.lat-half*1000/M_LAT,n:z.lat+half*1000/M_LAT,w:z.lon-half*1000/mLon(z.lat),e:z.lon+half*1000/mLon(z.lat)};
- z.bb=bb;
- let res=+$('#selDem').value;
- if(res===5&&z.size>8){res=25;setStatus('dem5','Zona de más de 8 km: se usa el MDT de 25 m para no bloquear el navegador.','wa')}else clearStatus('dem5');
- setStatus('dem','Descargando relieve (MDT '+res+' m del IGN)…');setProg(.05);
- let g;
- try{
-  const url=`https://servicios.idee.es/wcs-inspire/mdt?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&FORMAT=image/tiff&COVERAGEID=Elevacion4258_${res}&SUBSET=Lat(${bb.s.toFixed(6)},${bb.n.toFixed(6)})&SUBSET=Long(${bb.w.toFixed(6)},${bb.e.toFixed(6)})`;
-  const buf=await (await fetchT(url,60000)).arrayBuffer();
-  if(seq!==loadSeq)return;
-  g=parseTiff(buf);
- }catch(e){setStatus('dem','No se pudo descargar el relieve: '+e.message+'. Prueba «Recargar» en unos segundos.','er');return}
- // limpieza de huecos (mar o sin dato)
- let mn=1e9,mx=-1e9,nod=0;for(let i=0;i<g.data.length;i++){let v=g.data[i];if(!(v>-500&&v<9000)){g.data[i]=0;nod++;v=0}if(v<mn)mn=v;if(v>mx)mx=v}
- // submuestreo si hace falta
- const MAXV=1100;let step=Math.max(1,Math.ceil(Math.max(g.W,g.H)/MAXV));
- const W=Math.floor((g.W-1)/step)+1,H=Math.floor((g.H-1)/step)+1;
- const hg=new Float32Array(W*H);
- for(let j=0;j<H;j++)for(let i=0;i<W;i++)hg[j*W+i]=g.data[(j*step)*g.W+i*step];
- const dLon=g.dLon*step,dLat=g.dLat*step;
- const lonC0=g.lon0+g.dLon/2,latC0=g.lat0-g.dLat/2; // centro del primer píxel
- z.grid={W,H,h:hg,lon0:lonC0,lat0:latC0,dLon,dLat,mn,mx,res,step,mx_:mLon(z.lat)};
- setStatus('dem',`Relieve: ${fmt(W)}×${fmt(H)} puntos (MDT ${res} m${step>1?', reducido ×'+step:''}) · de ${fmt(mn)} a ${fmt(mx)} m${nod?` · ${fmt(nod)} celdas sin dato puestas a 0 (mar)`:''}.`,'ok');
- buildMesh(z);
- frameCamera(z,!!z.view);
- uni.uHmin.value=mn;uni.uHmax.value=mx;
- updateShare();
- loadBase(z,seq);
- loadOSM(z,seq);
-}
-
-function toLocal(lat,lon){const z=Z;return [(lon-z.lon)*z.grid.mx_,-(lat-z.lat)*M_LAT]}
-function hAt(lat,lon){const g=Z.grid;const fx=(lon-g.lon0)/g.dLon,fy=(g.lat0-lat)/g.dLat;
- if(fx<0||fy<0||fx>g.W-1||fy>g.H-1)return null;const i=Math.floor(fx),j=Math.floor(fy),a=fx-i,b=fy-j;const i1=Math.min(i+1,g.W-1),j1=Math.min(j+1,g.H-1);
- const h=g.h;return (h[j*g.W+i]*(1-a)+h[j*g.W+i1]*a)*(1-b)+(h[j1*g.W+i]*(1-a)+h[j1*g.W+i1]*a)*b}
-function hLocal(x,zz){const g=Z.grid;return hAt(Z.lat-zz/M_LAT,Z.lon+x/g.mx_)}
-
-// Mercator para casar la imagen (teselas WMTS) con la malla
-const mX=(lon,zm)=>(lon+180)/360*256*2**zm;
-const mY=(lat,zm)=>{const s=Math.sin(lat*Math.PI/180);return (.5-Math.log((1+s)/(1-s))/(4*Math.PI))*256*2**zm};
-
-function buildMesh(z){
- if(mesh){scene.remove(mesh);mesh.geometry.dispose();mesh.children.forEach(c=>c.geometry.dispose())}
- const g=z.grid,{W,H}=g;const n=W*H;
- const pos=new Float32Array(n*3),hg=new Float32Array(n),uv=new Float32Array(n*2);
- const zm=20,X0=mX(z.bb.w,zm),X1=mX(z.bb.e,zm),Y0=mY(z.bb.n,zm),Y1=mY(z.bb.s,zm);
- z.merc={zm,X0,X1,Y0,Y1};
- for(let j=0;j<H;j++){const lat=g.lat0-j*g.dLat;const vy=1-(mY(lat,zm)-Y0)/(Y1-Y0);
-  for(let i=0;i<W;i++){const k=j*W+i,lon=g.lon0+i*g.dLon;const [x,zz]=toLocal(lat,lon);const h=g.h[k];
-   pos[k*3]=x;pos[k*3+1]=h;pos[k*3+2]=zz;hg[k]=h;uv[k*2]=(mX(lon,zm)-X0)/(X1-X0);uv[k*2+1]=vy}}
- const idx=new Uint32Array((W-1)*(H-1)*6);let q=0;
- for(let j=0;j<H-1;j++)for(let i=0;i<W-1;i++){const a=j*W+i,b=a+1,c=a+W,d=c+1;idx[q++]=a;idx[q++]=c;idx[q++]=b;idx[q++]=b;idx[q++]=c;idx[q++]=d}
- const geo=new THREE.BufferGeometry();
- geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('hgt',new THREE.BufferAttribute(hg,1));geo.setAttribute('uv',new THREE.BufferAttribute(uv,2));
- geo.setIndex(new THREE.BufferAttribute(idx,1));geo.computeVertexNormals();
- mesh=new THREE.Mesh(geo,mat);scene.add(mesh);
- // faldón para que no se vea "hueco" por los bordes
- const base=g.mn-200;const sp=[];
- const edge=[];for(let i=0;i<W;i++)edge.push(i);for(let j=1;j<H;j++)edge.push(j*W+W-1);for(let i=W-2;i>=0;i--)edge.push((H-1)*W+i);for(let j=H-2;j>=0;j--)edge.push(j*W);
- for(let e=0;e<edge.length-1;e++){const a=edge[e],b=edge[e+1];const ax=pos[a*3],ay=pos[a*3+1],az=pos[a*3+2],bx=pos[b*3],by=pos[b*3+1],bz=pos[b*3+2];
-  sp.push(ax,ay,az,bx,by,bz,ax,base,az, bx,by,bz,bx,base,bz,ax,base,az)}
- const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));
- const skirt=new THREE.Mesh(sg,new THREE.ShaderMaterial({uniforms:{uExag:uni.uExag},side:THREE.DoubleSide,
-  vertexShader:'uniform float uExag;void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position.x,position.y*uExag,position.z,1.);}',
-  fragmentShader:'void main(){gl_FragColor=vec4(.36,.30,.24,1.);}'}));
- mesh.add(skirt);
- routes.forEach(r=>r.line&&(scene.remove(r.line),r.line=null));drawRoutes();
-}
-
-function frameCamera(z,useView){
- const g=z.grid;const half=z.size*500;const cy=(g.mn+g.mx)/2*uni.uExag.value;
- if(useView&&z.view){camera.position.set(...z.view.p);controls.target.set(...z.view.t);z.view=null}
- else{controls.target.set(0,cy,0);camera.position.set(0,cy+half*1.15,half*1.55)}
- controls.maxDistance=half*6;controls.minDistance=50;controls.update();
-}
-
-// ---------- Imagen de fondo (teselas WMTS / XYZ) ----------
-const BASES={
- pnoa:{max:19,url:(z,x,y)=>`https://www.ign.es/wmts/pnoa-ma?layer=OI.OrthoimageCoverage&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/jpeg&TileMatrix=${z}&TileCol=${x}&TileRow=${y}`,name:'Satélite PNOA (IGN)'},
- base:{max:17,url:(z,x,y)=>`https://www.ign.es/wmts/ign-base?layer=IGNBaseTodo&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/jpeg&TileMatrix=${z}&TileCol=${x}&TileRow=${y}`,name:'Mapa base IGN'},
- mtn:{max:16,url:(z,x,y)=>`https://www.ign.es/wmts/mapa-raster?layer=MTN&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/jpeg&TileMatrix=${z}&TileCol=${x}&TileRow=${y}`,name:'MTN (IGN)'},
- otm:{max:17,url:(z,x,y)=>`https://${'abc'[(x+y)%3]}.tile.opentopomap.org/${z}/${x}/${y}.png`,name:'OpenTopoMap'}
-};
-let baseKey='pnoa',baseSeq=0,curTexCanvasSize=null;
-function texLimit(){return Math.min(MAXTEX,$('#cHiTex').checked?8192:4096)}
-async function loadBase(z,seq){
- const my=++baseSeq;
- if(baseKey==='none'){uni.uUseMap.value=0;clearStatus('img');return}
- const B=BASES[baseKey];const lim=texLimit();
- let zm=B.max;while(zm>8&&(Math.max(mX(z.bb.e,zm)-mX(z.bb.w,zm),mY(z.bb.s,zm)-mY(z.bb.n,zm))>lim))zm--;
- const X0=mX(z.bb.w,zm),X1=mX(z.bb.e,zm),Y0=mY(z.bb.n,zm),Y1=mY(z.bb.s,zm);
- const cw=Math.ceil(X1-X0),ch=Math.ceil(Y1-Y0);
- const tx0=Math.floor(X0/256),tx1=Math.floor(X1/256),ty0=Math.floor(Y0/256),ty1=Math.floor(Y1/256);
- const cv=document.createElement('canvas');cv.width=cw;cv.height=ch;const cx=cv.getContext('2d');
- cx.fillStyle='#8a8f86';cx.fillRect(0,0,cw,ch);
- const jobs=[];for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++)jobs.push([tx,ty]);
- let done=0,fail=0;const N=jobs.length;
- setStatus('img',`Descargando ${B.name}: 0 de ${N} teselas (nivel ${zm})…`);
- const worker=async()=>{while(jobs.length){if(my!==baseSeq)return;const [tx,ty]=jobs.shift();
-  let ok=false;for(let t=0;t<2&&!ok;t++){try{const b=await (await fetchT(B.url(zm,tx,ty),20000)).blob();const im=await createImageBitmap(b);cx.drawImage(im,tx*256-X0,ty*256-Y0);im.close&&im.close();ok=true}catch(e){}}
-  if(!ok)fail++;done++;if(done%8===0||done===N){setProg(done/N);setStatus('img',`Descargando ${B.name}: ${done} de ${N} teselas…`)}}};
- await Promise.all(Array.from({length:8},worker));
- if(my!==baseSeq||seq!==loadSeq)return;
- const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.NoColorSpace;tex.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
- tex.minFilter=THREE.LinearMipmapLinearFilter;tex.generateMipmaps=true;
- if(uni.uMap.value!==blankTex)uni.uMap.value.dispose();
- uni.uMap.value=tex;uni.uUseMap.value=1;
- const mpp=(z.size*1000)/cw;
- setStatus('img',`${B.name}: ${N-fail} de ${N} teselas cargadas (≈${fmt(mpp,1)} m por píxel)${fail?` · ${fail} fallaron: verás manchas grises; pulsa «Recargar»`:''}.`,fail?'wa':'ok');
-}
-
-// ---------- OpenStreetMap (teselas vectoriales de OpenFreeMap): senderos, cumbres, refugios ----------
-let osm={ways:[],pts:[]},MVT=null,OFM_URL=null;
-async function mvtLib(){if(!MVT){const [a,b]=await Promise.all([import('https://cdn.jsdelivr.net/npm/@mapbox/vector-tile@2.0.3/+esm'),import('https://cdn.jsdelivr.net/npm/pbf@4.0.1/+esm')]);MVT={VectorTile:a.VectorTile,Pbf:b.default}}return MVT}
-async function loadOSM(z,seq){
- osm={ways:[],pts:[]};drawOverlay();buildLabels();
- setStatus('osm','Descargando senderos y nombres de OpenStreetMap…');
- try{
-  const {VectorTile,Pbf}=await mvtLib();
-  if(!OFM_URL)OFM_URL=(await (await fetchT('https://tiles.openfreemap.org/planet',15000)).json()).tiles[0];
-  const zt=14,n=2**zt,b=z.bb;
-  const tx=lon=>Math.floor((lon+180)/360*n),ty=lat=>Math.floor(mY(lat,zt)/256);
-  const jobs=[];for(let y=ty(b.n);y<=ty(b.s);y++)for(let x=tx(b.w);x<=tx(b.e);x++)jobs.push([x,y]);
-  const N=jobs.length;let done=0,fail=0,nw=0,np=0;
-  const inside=(lat,lon)=>lat>b.s&&lat<b.n&&lon>b.w&&lon<b.e;
-  const work=async()=>{while(jobs.length){const [x,y]=jobs.shift();if(seq!==loadSeq)return;
-   try{const buf=await (await fetchT(OFM_URL.replace('{z}',zt).replace('{x}',x).replace('{y}',y),20000)).arrayBuffer();const vt=new VectorTile(new Pbf(buf));
-    const tr=vt.layers.transportation;if(tr)for(let i=0;i<tr.length;i++){const f=tr.feature(i);const c=f.properties.class;if(c!=='path'&&c!=='track')continue;
-     const gj=f.toGeoJSON(x,y,zt).geometry;const lines=gj.type==='LineString'?[gj.coordinates]:gj.type==='MultiLineString'?gj.coordinates:[];
-     for(const l of lines){osm.ways.push({k:c==='track'?'track':(f.properties.subclass||'path'),g:l.map(p=>({lat:p[1],lon:p[0]}))});nw++}}
-    const mp=vt.layers.mountain_peak;if(mp)for(let i=0;i<mp.length;i++){const f=mp.feature(i),p=f.properties;if(!p.name||!/^(peak|volcano|saddle)$/.test(p.class))continue;
-     const c=f.toGeoJSON(x,y,zt).geometry.coordinates;if(inside(c[1],c[0])){osm.pts.push({name:p.name,ele:p.ele,lat:c[1],lon:c[0],t:p.class});np++}}
-    const po=vt.layers.poi;if(po)for(let i=0;i<po.length;i++){const f=po.feature(i),p=f.properties;if(!/^(alpine_hut|wilderness_hut)$/.test(p.subclass))continue;
-     const g=f.toGeoJSON(x,y,zt).geometry;const c=g.type==='Point'?g.coordinates:null;if(c&&inside(c[1],c[0])){osm.pts.push({name:p.name||'Refugio',lat:c[1],lon:c[0],hut:1});np++}}
-   }catch(e){fail++}
-   done++;if(done%4===0||done===N)setStatus('osm',`Descargando senderos y nombres: ${done} de ${N} teselas…`)}};
-  await Promise.all(Array.from({length:6},work));
-  if(seq!==loadSeq)return;
-  setStatus('osm',`OpenStreetMap: ${fmt(nw)} tramos de sendero o pista y ${fmt(np)} nombres (cumbres, collados, refugios)${fail?` · ${fail} de ${N} teselas fallaron: pulsa «Recargar»`:''}.`,fail?'wa':'ok');
- }catch(e){if(seq===loadSeq)setStatus('osm','Senderos y nombres no disponibles ahora ('+esc(e.message)+'). El relieve y la imagen sí están.','wa');return}
- drawOverlay();buildLabels();
-}
-
-// ---------- Capa superpuesta (senderos + rutas) dibujada sobre la imagen ----------
-let overCanvas=null,overTex=null;
-function drawOverlay(){
- if(!Z||!Z.merc)return;
- const z=Z,lim=Math.min(texLimit(),4096);
- const zm=z.merc.zm;const W0=z.merc.X1-z.merc.X0,H0=z.merc.Y1-z.merc.Y0;const sc=lim/Math.max(W0,H0);
- const cw=Math.ceil(W0*sc),ch=Math.ceil(H0*sc);
- if(!overCanvas||overCanvas.width!==cw||overCanvas.height!==ch){overCanvas=document.createElement('canvas');overCanvas.width=cw;overCanvas.height=ch;if(overTex){overTex.dispose();overTex=null}}
- const cx=overCanvas.getContext('2d');cx.clearRect(0,0,cw,ch);
- const P=(lat,lon)=>[(mX(lon,zm)-z.merc.X0)*sc,(mY(lat,zm)-z.merc.Y0)*sc];
- const mpp=z.size*1000/cw;const px=m=>Math.max(1,m/mpp);
- let any=false;
- if($('#cTrails').checked&&osm.ways.length){
-  cx.lineCap='round';cx.lineJoin='round';
-  for(const w of osm.ways){const track=w.k==='track';cx.beginPath();w.g.forEach((p,i)=>{const [x,y]=P(p.lat,p.lon);i?cx.lineTo(x,y):cx.moveTo(x,y)});
-   cx.strokeStyle='rgba(255,255,255,.55)';cx.lineWidth=px(track?7:5)+1.5;cx.setLineDash([]);cx.stroke();
-   cx.strokeStyle=track?'#8a4b16':'#d22a1e';cx.lineWidth=px(track?5:3.5);cx.setLineDash(track?[]:[px(14),px(8)]);cx.stroke()}
-  cx.setLineDash([]);any=true}
- for(const r of routes){if(!r.vis)continue;cx.beginPath();r.pts.forEach((p,i)=>{const [x,y]=P(p[0],p[1]);i?cx.lineTo(x,y):cx.moveTo(x,y)});
-  cx.strokeStyle='rgba(0,0,0,.6)';cx.lineWidth=px(16)+3;cx.stroke();cx.strokeStyle=r.color;cx.lineWidth=px(12)+1.5;cx.stroke();any=true}
- if(!overTex){overTex=new THREE.CanvasTexture(overCanvas);overTex.colorSpace=THREE.NoColorSpace;overTex.anisotropy=4}
- overTex.needsUpdate=true;uni.uOver.value=overTex;uni.uUseOver.value=any?1:0;
-}
-
-// ---------- Etiquetas ----------
-const labelsEl=$('#labels');let labels=[];
-function buildLabels(){
- labelsEl.innerHTML='';labels=[];if(!Z||!Z.grid)return;
- const seen=new Set();
- const pts=osm.pts.slice().sort((a,b)=>(parseFloat(b.ele)||hAt(b.lat,b.lon)||0)-(parseFloat(a.ele)||hAt(a.lat,a.lon)||0));
- for(const p of pts){const key=p.name+Math.round(p.lat*500)+Math.round(p.lon*500);if(seen.has(key))continue;seen.add(key);
-  const h=hAt(p.lat,p.lon);if(h==null)continue;const [x,zz]=toLocal(p.lat,p.lon);
-  const el=document.createElement('div');el.className='lb'+(p.hut?' hut':'');
-  const ele=p.ele&&!isNaN(parseFloat(p.ele))?Math.round(parseFloat(p.ele)):Math.round(h);
-  el.innerHTML=`${p.hut?'⌂ ':''}${esc(p.name)}<small>${fmt(ele)} m</small>`;labelsEl.appendChild(el);
-  labels.push({el,x,zz,h,vis:false,w:0})}
- labelsEl.style.display=$('#cLabels').checked?'':'none';
-}
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const _v=new THREE.Vector3();let lbFrame=0;
-function updateLabels(){
- if(!labels.length||labelsEl.style.display==='none')return;
- const occl=(lbFrame++%6)===0;const W=innerWidth,H=innerHeight;const ex=uni.uExag.value;const placed=[];
- const cp=camera.position;
- for(const L of labels){
-  _v.set(L.x,L.h*ex+4,L.zz).project(camera);
-  if(_v.z>1||_v.x<-1.1||_v.x>1.1||_v.y<-1.1||_v.y>1.1){if(L.vis){L.el.style.display='none';L.vis=false}continue}
-  if(occl){L.hid=false;const dx=L.x-cp.x,dy=L.h*ex+15-cp.y,dz=L.zz-cp.z;for(let s=1;s<24;s++){const t=s/24;const x=cp.x+dx*t,z=cp.z+dz*t,y=cp.y+dy*t;const hh=hLocal(x,z);if(hh!=null&&hh*ex>y){L.hid=true;break}}}
-  const sx=(_v.x+1)/2*W,sy=(1-_v.y)/2*H;
-  let clash=L.hid;if(!clash){for(const p of placed){if(Math.abs(p[0]-sx)<90&&Math.abs(p[1]-sy)<16){clash=true;break}}}
-  if(clash){if(L.vis){L.el.style.display='none';L.vis=false}continue}
-  placed.push([sx,sy]);if(!L.vis){L.el.style.display='';L.vis=true}
-  L.el.style.left=sx+'px';L.el.style.top=sy+'px';
-  if(placed.length>60)break;
- }
-}
-
-// ---------- Rutas GPX/KML/KMZ/TCX ----------
-const routes=[];const COLORS=['#ffe14d','#4dd2ff','#ff7bd8','#9cff6b','#ffa64d'];
-async function readRouteFile(f){
- const ext=f.name.split('.').pop().toLowerCase();let txt;
- if(ext==='kmz'){const JSZip=(await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm')).default;const zip=await JSZip.loadAsync(await f.arrayBuffer());const k=Object.keys(zip.files).find(n=>n.toLowerCase().endsWith('.kml'));if(!k)throw new Error('el KMZ no lleva ningún KML dentro');txt=await zip.files[k].async('string')}
- else txt=await f.text();
- const x=new DOMParser().parseFromString(txt,'application/xml');if(x.querySelector('parsererror'))throw new Error('fichero mal formado');
- const pts=[];
- if(ext==='gpx'){for(const p of x.querySelectorAll('trkpt,rtept')){const e=p.querySelector('ele');pts.push([+p.getAttribute('lat'),+p.getAttribute('lon'),e?+e.textContent:null])}}
- else if(ext==='tcx'){for(const p of x.querySelectorAll('Trackpoint')){const la=p.querySelector('LatitudeDegrees'),lo=p.querySelector('LongitudeDegrees'),e=p.querySelector('AltitudeMeters');if(la&&lo)pts.push([+la.textContent,+lo.textContent,e?+e.textContent:null])}}
- else{const cs=[...x.getElementsByTagName('coordinates')].concat([...x.getElementsByTagNameNS('*','coord')]);
-  for(const c of cs){if(c.localName==='coord'){const [lo,la,e]=c.textContent.trim().split(/\s+/).map(Number);pts.push([la,lo,isNaN(e)?null:e]);continue}
-   for(const t of c.textContent.trim().split(/\s+/)){const [lo,la,e]=t.split(',').map(Number);if(!isNaN(la)&&!isNaN(lo))pts.push([la,lo,isNaN(e)?null:e])}}}
- if(pts.length<2)throw new Error('no tiene puntos de recorrido');
- return pts;
-}
-function routeStats(pts){let d=0,up=0,dn=0,last=null;
- const el=pts.map(p=>p[2]!=null&&!isNaN(p[2])?p[2]:(Z&&Z.grid?hAt(p[0],p[1]):null));
- for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];const dy=(b[0]-a[0])*M_LAT,dx=(b[1]-a[1])*mLon((a[0]+b[0])/2);d+=Math.hypot(dx,dy)}
- for(const e of el){if(e==null)continue;if(last==null){last=e;continue}const df=e-last;if(Math.abs(df)>=3){df>0?up+=df:dn-=df;last=e}}
- const ev=el.filter(e=>e!=null);return {d,up,dn,max:ev.length?Math.max(...ev):null,min:ev.length?Math.min(...ev):null,src:pts.some(p=>p[2]!=null)?'GPS':'relieve'}}
-async function addRouteFiles(files){
- let fitTo=null,ok=0;const errs=[];
- for(const f of files){try{const pts=await readRouteFile(f);const r={name:f.name.replace(/\.[^.]+$/,''),pts,vis:true,color:COLORS[routes.length%COLORS.length]};routes.push(r);ok++;fitTo=fitTo||r}catch(e){errs.push(f.name+': '+e.message)}}
- setStatus('rt',`Rutas: ${ok} de ${files.length} cargadas.${errs.length?' Fallos → '+errs.map(esc).join(' · '):''}`,errs.length?'wa':'ok');
- if(fitTo){const inside=Z&&Z.bb&&fitTo.pts.every(p=>p[0]>Z.bb.s&&p[0]<Z.bb.n&&p[1]>Z.bb.w&&p[1]<Z.bb.e);
-  if(!inside){let s=90,n=-90,w=180,e=-180;for(const p of fitTo.pts){s=Math.min(s,p[0]);n=Math.max(n,p[0]);w=Math.min(w,p[1]);e=Math.max(e,p[1])}
-   const lat=(s+n)/2,lon=(w+e)/2;const ext=Math.max((n-s)*M_LAT,(e-w)*mLon(lat))/1000;const size=Math.min(30,Math.max(5,Math.ceil(ext*1.25)));
-   if(ext*1.25>30)setStatus('rt2','La ruta mide más de 30 km de lado: se muestra la parte central.','wa');
-   $('#selSize').value=nearestSize(size);await loadZone({name:fitTo.name,sub:'ruta',lat,lon,size:+$('#selSize').value});}
-  else drawRoutes()}
- renderRouteList();
-}
-function nearestSize(s){const o=[...$('#selSize').options].map(o=>+o.value);return o.find(v=>v>=s)||o[o.length-1]}
-function drawRoutes(){drawOverlay()}
-function renderRouteList(){
- $('#routeList').innerHTML=routes.map((r,i)=>{const s=routeStats(r.pts);return `<div class="route"><label><input type="checkbox" data-r="${i}" ${r.vis?'checked':''}><span class="sw" style="background:${r.color}"></span>${esc(r.name)}</label>
- <span class="mut">${fmt(s.d/1000,1)} km · +${fmt(s.up)} / −${fmt(s.dn)} m${s.max!=null?' · máx '+fmt(s.max)+' m':''}</span><button class="btn" data-go="${i}" title="Ver">⌖</button></div>`}).join('')+(routes.length?`<p class="mut">Desnivel calculado con la altitud del ${routes.some(r=>r.pts.some(p=>p[2]!=null))?'GPS cuando la trae el fichero y, si no, del relieve del IGN':'relieve del IGN (el fichero no trae altitud)'}; umbral de 3 m.</p>`:'');
-}
-$('#routeList').addEventListener('change',e=>{const i=e.target.dataset.r;if(i!=null){routes[i].vis=e.target.checked;drawRoutes()}});
-$('#routeList').addEventListener('click',async e=>{const i=e.target.dataset.go;if(i==null)return;const r=routes[i];const p=r.pts[Math.floor(r.pts.length/2)];
- if(!Z||!(p[0]>Z.bb.s&&p[0]<Z.bb.n&&p[1]>Z.bb.w&&p[1]<Z.bb.e)){await addRouteFilesRefit(r)}else{const [x,zz]=toLocal(p[0],p[1]);controls.target.set(x,(hAt(p[0],p[1])||0)*uni.uExag.value,zz);controls.update()}});
-async function addRouteFilesRefit(r){let s=90,n=-90,w=180,e=-180;for(const p of r.pts){s=Math.min(s,p[0]);n=Math.max(n,p[0]);w=Math.min(w,p[1]);e=Math.max(e,p[1])}const lat=(s+n)/2,lon=(w+e)/2;const ext=Math.max((n-s)*M_LAT,(e-w)*mLon(lat))/1000;$('#selSize').value=nearestSize(Math.ceil(ext*1.25));await loadZone({name:r.name,sub:'ruta',lat,lon,size:+$('#selSize').value})}
-$('#fRoute').addEventListener('change',e=>{if(e.target.files.length)addRouteFiles([...e.target.files]);e.target.value=''});
-let dragN=0;
-addEventListener('dragenter',e=>{e.preventDefault();dragN++;$('#drop').classList.add('show')});
-addEventListener('dragleave',e=>{dragN--;if(dragN<=0)$('#drop').classList.remove('show')});
-addEventListener('dragover',e=>e.preventDefault());
-addEventListener('drop',e=>{e.preventDefault();dragN=0;$('#drop').classList.remove('show');const f=[...e.dataTransfer.files].filter(f=>/\.(gpx|kml|kmz|tcx)$/i.test(f.name));if(f.length)addRouteFiles(f);else setStatus('rt','Solo se admiten ficheros GPX, KML, KMZ o TCX.','wa')});
-
-// ---------- Interfaz ----------
-document.querySelectorAll('#bar button[data-p]').forEach(b=>b.addEventListener('click',()=>{const p=$('#'+b.dataset.p);const open=!p.classList.contains('open');
- document.querySelectorAll('.pn').forEach(x=>x.classList.remove('open'));document.querySelectorAll('#bar button').forEach(x=>x.classList.remove('on'));
- if(open){p.classList.add('open');b.classList.add('on');if(b.dataset.p==='pMas')updateShare()}}));
-canvas.addEventListener('pointerdown',()=>{document.querySelectorAll('.pn').forEach(x=>x.classList.remove('open'));document.querySelectorAll('#bar button').forEach(x=>x.classList.remove('on'))});
-
-function renderCat(f=''){f=f.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');let h='';
- CAT.forEach(([g,items],gi)=>{const its=items.map((it,ii)=>[it,ii]).filter(([it])=>!f||(g+' '+it[0]+' '+it[1]).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(f));
-  if(!its.length)return;h+=`<div class="g">${g}</div>`+its.map(([it,ii])=>`<div class="it" data-c="${gi},${ii}"><span>${esc(it[0])}</span><small>${esc(it[1])}</small></div>`).join('')});
- $('#catList').innerHTML=h||'<p class="mut" style="padding:8px">Nada en el catálogo. Usa el buscador de arriba.</p>'}
-renderCat();
-$('#qCat').addEventListener('input',e=>renderCat(e.target.value));
-$('#catList').addEventListener('click',e=>{const it=e.target.closest('.it');if(!it)return;const [gi,ii]=it.dataset.c.split(',').map(Number);const c=CAT[gi][1][ii];
- $('#selSize').value=nearestSize(c[4]);loadZone({name:c[0],sub:c[1],lat:c[2],lon:c[3],size:+$('#selSize').value});document.querySelectorAll('.pn').forEach(x=>x.classList.remove('open'))});
-
-$('#fSearch').addEventListener('submit',async e=>{e.preventDefault();const q=$('#qSearch').value.trim();if(!q)return;$('#searchRes').innerHTML='<p class="mut">Buscando…</p>';
- try{const j=await (await fetchT('https://nominatim.openstreetmap.org/search?format=json&limit=8&countrycodes=es&accept-language=es&q='+encodeURIComponent(q),15000)).json();
-  $('#searchRes').innerHTML=j.length?'<div class="list">'+j.map((r,i)=>`<div class="it" data-s="${i}"><span>${esc(r.display_name.split(',').slice(0,3).join(','))}</span><small>${esc(r.type)}</small></div>`).join('')+'</div>':'<p class="mut">Sin resultados en España.</p>';
-  $('#searchRes').onclick=ev=>{const it=ev.target.closest('.it');if(!it)return;const r=j[+it.dataset.s];loadZone({name:r.display_name.split(',')[0],sub:r.display_name.split(',').slice(1,3).join(',').trim(),lat:+r.lat,lon:+r.lon,size:+$('#selSize').value});document.querySelectorAll('.pn').forEach(x=>x.classList.remove('open'))}}
- catch(err){$('#searchRes').innerHTML='<p class="mut">El buscador (Nominatim) no responde: '+esc(err.message)+'</p>'}});
-
-document.querySelectorAll('[data-mv]').forEach(b=>b.addEventListener('click',()=>{if(!Z)return;const [dx,dy]=b.dataset.mv.split(',').map(Number);const st=Z.size*0.5;
- loadZone({name:Z.name,sub:'desplazado',lat:Z.lat+dy*st*1000/M_LAT,lon:Z.lon+dx*st*1000/mLon(Z.lat),size:Z.size})}));
-$('#bReload').addEventListener('click',()=>{if(Z)loadZone({...Z,size:+$('#selSize').value,view:null})});
-$('#selSize').addEventListener('change',()=>{if(Z)loadZone({...Z,size:+$('#selSize').value})});
-$('#selDem').addEventListener('change',()=>{if(Z)loadZone({...Z})});
-
-document.querySelectorAll('input[name=base]').forEach(r=>r.addEventListener('change',()=>{baseKey=r.value;if(Z)loadBase(Z,loadSeq);updateShare()}));
-$('#cHiTex').addEventListener('change',()=>{if(Z){loadBase(Z,loadSeq);drawOverlay()}});
-$('#cShade').addEventListener('change',e=>uni.uShade.value=e.target.checked?1:0);
-$('#cHypso').addEventListener('change',e=>uni.uHypso.value=e.target.checked?1:0);
-$('#cCont').addEventListener('change',e=>uni.uCont.value=e.target.checked?1:0);
-$('#selCont').addEventListener('change',e=>{uni.uContInt.value=+e.target.value;$('#cCont').checked=true;uni.uCont.value=1});
-$('#cTrails').addEventListener('change',drawOverlay);
-$('#cLabels').addEventListener('change',e=>{labelsEl.style.display=e.target.checked?'':'none'});
-$('#rExag').addEventListener('input',e=>{const v=+e.target.value;const r=v/uni.uExag.value;uni.uExag.value=v;$('#vExag').textContent=fmt(v,1)+'×';controls.target.y*=r;camera.position.y*=r;controls.update()});
-function setSun(){const a=+$('#rSun').value*Math.PI/180;uni.uSun.value.set(Math.sin(a)*.75,.62,-Math.cos(a)*.75).normalize()}
-$('#rSun').addEventListener('input',setSun);setSun();
-
-$('#bFull').addEventListener('click',async()=>{try{document.fullscreenElement?await document.exitFullscreen():await document.documentElement.requestFullscreen()}catch(e){setStatus('fs','Este navegador no permite pantalla completa aquí.','wa')}});
-$('#compass').addEventListener('click',()=>{const t=controls.target,p=camera.position;const d=Math.hypot(p.x-t.x,p.z-t.z);camera.position.set(t.x,p.y,t.z+d);controls.update()});
-$('#bTop').addEventListener('click',()=>{const t=controls.target;const d=camera.position.distanceTo(t);camera.position.set(t.x,t.y+d,t.z+1);controls.update()});
-
-// doble clic: nueva zona centrada en ese punto
-const ray=new THREE.Raycaster(),mv=new THREE.Vector2();
-canvas.addEventListener('dblclick',e=>{if(!mesh||!Z)return;mv.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(mv,camera);
- // intersección por marcha sobre el relieve (la malla está escalada en el shader)
- const o=ray.ray.origin,d=ray.ray.direction;const ex=uni.uExag.value;let hit=null;
- for(let t=0;t<Z.size*4000;t+=Z.size*2){const x=o.x+d.x*t,y=o.y+d.y*t,z=o.z+d.z*t;const h=hLocal(x,z);if(h!=null&&h*ex>=y){hit=[x,z];break}}
- if(!hit)return;const lat=Z.lat-hit[1]/M_LAT,lon=Z.lon+hit[0]/Z.grid.mx_;
- loadZone({name:'Zona elegida',sub:`${fmt(lat,4)}, ${fmt(lon,4)}`,lat,lon,size:Z.size})});
-
-// compartir
-function updateShare(){if(!Z)return;const t=controls.target,p=camera.position;
- const h=`#${Z.lat.toFixed(5)},${Z.lon.toFixed(5)},${Z.size},${baseKey},${encodeURIComponent(Z.name)},${[p.x,p.y,p.z,t.x,t.y,t.z].map(v=>Math.round(v)).join(',')}`;
- history.replaceState(null,'',h);$('#shareUrl').value=location.href}
-$('#bCopy').addEventListener('click',async()=>{updateShare();try{await navigator.clipboard.writeText($('#shareUrl').value);$('#bCopy').textContent='Copiado'}catch(e){$('#shareUrl').select();$('#bCopy').textContent='Cópialo a mano'}setTimeout(()=>$('#bCopy').textContent='Copiar',2000)});
-controls.addEventListener('end',()=>{clearTimeout(window.__sh);window.__sh=setTimeout(updateShare,600)});
-
-// ---------- Bucle ----------
-function loop(){requestAnimationFrame(loop);controls.update();
- const az=Math.atan2(camera.position.x-controls.target.x,camera.position.z-controls.target.z);$('#compass span').style.transform=`rotate(${-90+az*180/Math.PI}deg)`;
- renderer.render(scene,camera);updateLabels()}
-loop();
-
-// ---------- Arranque ----------
-(function start(){
- const h=decodeURIComponent(location.hash.slice(1)).split(',');
- if(h.length>=3&&!isNaN(+h[0])&&!isNaN(+h[1])){
-  if(h[3]&&BASES[h[3]]||h[3]==='none'){baseKey=h[3];const r=document.querySelector(`input[name=base][value="${h[3]}"]`);r&&(r.checked=true)}
-  const size=nearestSize(+h[2]||12);$('#selSize').value=size;
-  const z={name:h[4]||'Zona compartida',lat:+h[0],lon:+h[1],size};
-  if(h.length>=11){const v=h.slice(5,11).map(Number);if(v.every(x=>!isNaN(x)))z.view={p:v.slice(0,3),t:v.slice(3,6)}}
-  loadZone(z)}
- else if(location.hash==='#ruta'){let r=null;try{r=JSON.parse(localStorage.getItem('montanas3d-ruta')||'null')}catch(e){}
-  if(r&&r.pts&&r.pts.length>1){const rt={name:r.name||'Ruta',pts:r.pts,vis:true,color:COLORS[0]};routes.push(rt);addRouteFilesRefit(rt).then(renderRouteList)}
-  else{setStatus('rt','No llegó ninguna ruta desde el planificador.','wa');const c=CAT[4][1][0];loadZone({name:c[0],sub:c[1],lat:c[2],lon:c[3],size:c[4]})}}
- else{const c=CAT[4][1][0];loadZone({name:c[0],sub:c[1],lat:c[2],lon:c[3],size:c[4]})}
-})();
-</script>
+<script type="module" src="visor.js"></script>
 </body>
 </html>

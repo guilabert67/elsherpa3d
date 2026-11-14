@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1a14">
 <title>El Sherpa 3D · Rutas de senderismo y BTT</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="iconos/icono-192.png">
+<link rel="apple-touch-icon" href="iconos/icono-192.png">
 <style>
 :root{--bg:#0b1a14;--panel:#10221b;--line:rgba(255,255,255,.12);--tx:#eef3ef;--mut:#9fb3a8;--acc:#7fd1a2;--warn:#ffcf6e;--err:#ff8a7a}
 *{box-sizing:border-box}
@@ -30,6 +33,7 @@ input[type=search]{background:#0b1a14;color:var(--tx);border:1px solid var(--lin
 table{width:100%;border-collapse:collapse;font-size:13px}
 td{padding:4px 0;border-bottom:1px solid var(--line)}td:last-child{text-align:right;font-variant-numeric:tabular-nums}
 .bar{display:flex;height:12px;border-radius:4px;overflow:hidden;margin:4px 0 2px}
+.bar i{display:block;height:100%}
 .leg{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--mut)}
 .leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 .w{padding:6px 8px;border-radius:8px;margin:5px 0;font-size:12.5px}
@@ -56,6 +60,12 @@ a{color:var(--acc)}
   </div>
   <div class="mut" id="modeTxt" style="margin-top:4px"></div>
 
+  <h3>Senderos del mapa</h3>
+  <div class="row" style="align-items:center"><label class="mut" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="cTr" checked> Colorear senderos por</label><select id="selTr" class="btn"><option value="sac">dificultad a pie</option><option value="mtb">dificultad BTT</option></select></div>
+  <div class="leg" id="trLeg"></div>
+  <div class="row"><button class="btn" id="bQuery">ℹ Consultar un sendero</button></div>
+  <div class="mut" id="trMsg">Acércate al mapa para ver la dificultad de cada sendero.</div>
+
   <h3>Cómo se usa</h3>
   <div class="mut">Toca el mapa para poner el inicio y los puntos de paso: la ruta se traza sola por los caminos. Arrastra un punto para moverlo; tócalo para quitarlo.</div>
   <div class="row">
@@ -71,6 +81,7 @@ a{color:var(--acc)}
   <div class="res" id="sRes"></div>
   <div class="row"><button class="btn" id="bMe">◎ Mi posición</button></div>
 
+  <div class="row" style="align-items:center"><span class="mut">Colorear la ruta por</span><select id="selCol" class="btn"><option value="act">actividad</option><option value="dif" selected>dificultad</option><option value="pend">pendiente</option></select></div>
   <div id="stats"></div>
 
   <h3>Guardar y llevar</h3>
@@ -79,270 +90,18 @@ a{color:var(--acc)}
     <button class="btn" id="b3d" disabled>⛰ Ver en 3D</button>
     <button class="btn" id="bShare" disabled>🔗 Copiar enlace</button>
   </div>
-  <div class="row"><label class="btn" style="display:inline-block">⬆ Analizar un GPX<input type="file" id="fG" accept=".gpx" hidden></label></div>
+  <div class="row"><label class="btn" style="display:inline-block">⬆ Analizar un GPX, FIT, KML o TCX<input type="file" id="fG" accept=".gpx,.fit,.kml,.kmz,.tcx" hidden></label></div>
 
   <h3>Datos</h3>
-  <p class="mut">Trazado: <a href="https://brouter.de" target="_blank" rel="noopener">BRouter</a> sobre datos de © colaboradores de OpenStreetMap (ODbL). Altitud y perfil: MDT de 25 m del IGN (CC BY 4.0). Mapas: IGN/CNIG (CC BY 4.0), OpenTopoMap (CC BY-SA), rutas señalizadas de Waymarked Trails (CC BY-SA).</p>
+  <p class="mut">Trazado: <a href="https://brouter.de" target="_blank" rel="noopener">BRouter</a> sobre datos de © colaboradores de OpenStreetMap (ODbL). Altitud y perfil: MDT de 25 m del IGN (CC BY 4.0). Dificultad: escalas SAC y MTB de OpenStreetMap (en la ruta, vía BRouter; en los senderos del mapa, vía Overpass de OpenStreetMap Francia o Postpass de Geofabrik); donde falta la escala MTB se estima por el tipo de camino (reglas en el README). Mapas: IGN/CNIG (CC BY 4.0), OpenTopoMap (CC BY-SA), rutas señalizadas de Waymarked Trails (CC BY-SA).</p>
   <p class="mut">La ruta sale de lo que hay en OpenStreetMap: puede faltar alguna prohibición o cierre (por ejemplo, normas de un parque natural para bicis). Compruébalo en la web del espacio protegido antes de salir.</p>
-  <p class="mut">Privacidad: la página pide datos a brouter.de, ign.es, idee.es, nominatim.openstreetmap.org, opentopomap.org, waymarkedtrails.org y jsdelivr.net, que reciben tu IP como en cualquier visita. Tu posición solo se usa en tu móvil para centrar el mapa. La ruta se guarda únicamente en tu navegador.</p>
+  <p class="mut">Privacidad: la página pide datos a brouter.de, ign.es, idee.es, overpass.openstreetmap.fr, postpass.geofabrik.de, overpass-api.de, nominatim.openstreetmap.org, opentopomap.org, waymarkedtrails.org y jsdelivr.net, que reciben tu IP como en cualquier visita. Tu posición solo se usa en tu móvil para centrar el mapa. La ruta se guarda únicamente en tu navegador.</p>
 </div>
 <div id="map"></div>
 <div id="prof"><canvas id="pc"></canvas><div id="tip"></div></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-'use strict';
-const $=s=>document.querySelector(s);
-const fmt=(n,d=0)=>n.toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-async function fetchT(url,ms=30000){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(url,{signal:c.signal});if(!r.ok){const e=new Error('HTTP '+r.status);e.status=r.status;e.body=await r.text().catch(()=>'');throw e}return r}finally{clearTimeout(t)}}
-const M_LAT=110574,mLon=lat=>111320*Math.cos(lat*Math.PI/180);
-const dist=(a,b)=>Math.hypot((b[0]-a[0])*M_LAT,(b[1]-a[1])*mLon((a[0]+b[0])/2));
-
-// ---------- Modos (perfiles de BRouter comprobados) ----------
-const MODES={
- hike:{profile:'hiking-mountain',name:'Senderismo',txt:'Prefiere senderos y caminos de montaña; evita carreteras. Tiempo con la norma DIN 33466 (4 km/h en llano, 300 m/h de subida, 500 m/h de bajada).'},
- mtb:{profile:'mtb',name:'BTT',txt:'Bici de montaña: pistas y senderos por los que se puede rodar, evitando los tramos prohibidos a la bici cuando OpenStreetMap lo indica. Tiempo estimado por BRouter.'},
- track:{profile:'trekking',name:'Pistas',txt:'Bici por pistas y caminos fáciles, con algo de asfalto si hace falta (más rodador que BTT). Tiempo estimado por BRouter.'}
-};
-let mode='hike';
-
-// ---------- Mapa ----------
-const ignW=(srv,layer,fmt_)=>`https://www.ign.es/wmts/${srv}?layer=${layer}&style=default&tilematrixset=GoogleMapsCompatible&Service=WMTS&Request=GetTile&Version=1.0.0&Format=${fmt_}&TileMatrix={z}&TileCol={x}&TileRow={y}`;
-const IGN='© <a href="https://www.ign.es">IGN/CNIG</a> (CC BY 4.0)';
-const bases={
- 'Mapa topográfico IGN (MTN)':L.tileLayer(ignW('mapa-raster','MTN','image/jpeg'),{maxZoom:19,maxNativeZoom:16,attribution:IGN}),
- 'Mapa base IGN':L.tileLayer(ignW('ign-base','IGNBaseTodo','image/jpeg'),{maxZoom:19,maxNativeZoom:17,attribution:IGN}),
- 'Satélite PNOA (IGN)':L.tileLayer(ignW('pnoa-ma','OI.OrthoimageCoverage','image/jpeg'),{maxZoom:19,attribution:IGN}),
- 'OpenTopoMap':L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:17,subdomains:'abc',attribution:'© OpenStreetMap, SRTM · estilo © <a href="https://opentopomap.org">OpenTopoMap</a> (CC BY-SA)'})
-};
-const overs={
- 'Rutas señalizadas a pie (GR, PR, SL)':L.tileLayer('https://tile.waymarkedtrails.org/hiking/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:18,opacity:.8,attribution:'Rutas © <a href="https://waymarkedtrails.org">Waymarked Trails</a> (CC BY-SA)'}),
- 'Rutas señalizadas BTT':L.tileLayer('https://tile.waymarkedtrails.org/mtb/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:18,opacity:.8,attribution:'Rutas © <a href="https://waymarkedtrails.org">Waymarked Trails</a> (CC BY-SA)'})
-};
-const map=L.map('map',{zoomControl:true,doubleClickZoom:false}).setView([40.7646,-3.8913],13);
-bases['Mapa topográfico IGN (MTN)'].addTo(map);overs['Rutas señalizadas a pie (GR, PR, SL)'].addTo(map);
-L.control.layers(bases,overs,{collapsed:true}).addTo(map);
-L.control.scale({imperial:false}).addTo(map);
-map.on('baselayerchange',e=>{try{localStorage.setItem('rutas-base',e.name)}catch(_){}});
-try{const b=localStorage.getItem('rutas-base');if(b&&bases[b]){map.removeLayer(bases['Mapa topográfico IGN (MTN)']);bases[b].addTo(map)}}catch(_){}
-
-// ---------- Puntos de paso ----------
-let wps=[];const wpLayer=L.layerGroup().addTo(map);
-let routeLine=null,routeCasing=null,hoverMk=null,res=null,imported=false;
-function wpIcon(i,n){return L.divIcon({className:'',html:`<div class="wp ${i===0?'s':i===n-1&&n>1?'e':''}"></div>`,iconSize:[16,16],iconAnchor:[8,8]})}
-function drawWps(){wpLayer.clearLayers();wps.forEach((p,i)=>{const m=L.marker(p,{draggable:true,icon:wpIcon(i,wps.length)}).addTo(wpLayer);
- m.on('dragend',()=>{const ll=m.getLatLng();wps[i]=[ll.lat,ll.lng];imported=false;route()});
- m.on('click',()=>{wps.splice(i,1);imported=false;drawWps();route()})})}
-map.on('click',e=>{if(imported){if(!confirmReplace())return}wps.push([e.latlng.lat,e.latlng.lng]);drawWps();route()});
-function confirmReplace(){imported=false;wps=[];clearRoute();return true}
-$('#bUndo').onclick=()=>{wps.pop();imported=false;drawWps();route()};
-$('#bClear').onclick=()=>{wps=[];imported=false;drawWps();clearRoute();setMsg('')};
-$('#bLoop').onclick=()=>{if(wps.length<2)return setMsg('Pon al menos dos puntos.','wa');wps.push(wps[0].slice());drawWps();route()};
-$('#bBack').onclick=()=>{if(wps.length<2)return setMsg('Pon al menos dos puntos.','wa');wps=wps.concat(wps.slice(0,-1).reverse());drawWps();route()};
-document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x===b));$('#modeTxt').textContent=MODES[mode].txt;
- if(mode==='hike'){map.addLayer(overs['Rutas señalizadas a pie (GR, PR, SL)']);map.removeLayer(overs['Rutas señalizadas BTT'])}else{map.addLayer(overs['Rutas señalizadas BTT']);map.removeLayer(overs['Rutas señalizadas a pie (GR, PR, SL)'])}
- if(!imported)route();else analyse()});
-$('#modeTxt').textContent=MODES[mode].txt;
-function setMsg(t,c=''){$('#msg').innerHTML=t?`<div class="w ${c}">${t}</div>`:''}
-function clearRoute(){if(routeLine){map.removeLayer(routeLine);map.removeLayer(routeCasing);routeLine=routeCasing=null}res=null;$('#stats').innerHTML='';drawProfile();['bGpx','b3d','bShare'].forEach(i=>$('#'+i).disabled=true);history.replaceState(null,'',location.pathname)}
-
-// ---------- Trazado con BRouter ----------
-let rSeq=0,rTimer=null,fitOnce=false;
-function route(){clearTimeout(rTimer);rTimer=setTimeout(doRoute,250)}
-async function doRoute(){
- const my=++rSeq;
- if(wps.length<2){clearRoute();if(wps.length===1)setMsg('Ahora toca el siguiente punto.');return}
- if(wps.length>40)return setMsg('Máximo 40 puntos de paso.','wa');
- setMsg('Calculando ruta por caminos…');
- const ll=wps.map(p=>p[1].toFixed(6)+','+p[0].toFixed(6)).join('|');
- let j;
- try{j=await (await fetchT(`https://brouter.de/brouter?lonlats=${ll}&profile=${MODES[mode].profile}&alternativeidx=0&format=geojson`,45000)).json()}
- catch(e){if(my!==rSeq)return;const b=(e.body||'').toLowerCase();
-  setMsg(e.status===500&&/not found|no route|target/.test(b)?'No hay camino entre esos puntos con este tipo de actividad. Acerca los puntos a un camino o cambia de actividad.':e.name==='AbortError'?'BRouter no responde. Inténtalo de nuevo en unos segundos.':'No se pudo calcular la ruta ('+esc(e.message)+(e.body?': '+esc(e.body.slice(0,120)):'')+').','er');return}
- if(my!==rSeq)return;
- const f=j.features[0];const pr=f.properties;
- const pts=f.geometry.coordinates.map(c=>[c[1],c[0],c[2]!=null?c[2]:null]);
- // tramos según etiquetas OSM
- const msgs=pr.messages||[];const hdr=msgs[0]||[];const iT=hdr.indexOf('WayTags'),iD=hdr.indexOf('Distance');
- const segs=msgs.slice(1).map(m=>({d:+m[iD],tags:Object.fromEntries((m[iT]||'').split(' ').filter(Boolean).map(t=>{const k=t.indexOf('=');return [t.slice(0,k),t.slice(k+1)]}))}));
- // aviso si un punto queda lejos del camino
- const far=wps.map((w,i)=>[i,Math.min(...pts.map(p=>dist(w,p)))]).filter(x=>x[1]>150);
- res={pts,segs,brTime:+pr['total-time'],brLen:+pr['track-length'],far,name:'Ruta '+MODES[mode].name};
- await addIGN(res,my);if(my!==rSeq)return;
- drawRoute();analyse();setMsg('');
- if(fitOnce){fitOnce=false;map.fitBounds(routeLine.getBounds(),{padding:[30,30]})}
-}
-
-// ---------- Altitud del IGN a lo largo de la ruta ----------
-async function addIGN(r,my){
- let s=90,n=-90,w=180,e=-180;for(const p of r.pts){s=Math.min(s,p[0]);n=Math.max(n,p[0]);w=Math.min(w,p[1]);e=Math.max(e,p[1])}
- const m=0.003;s-=m;n+=m;w-=m;e+=m;r.eleSrc='BRouter (satélite SRTM, menos precisa)';
- if((n-s)*M_LAT>80000||(e-w)*mLon(s)>80000){r.eleNote='Ruta muy larga: altitud de BRouter.';return}
- try{const buf=await (await fetchT(`https://servicios.idee.es/wcs-inspire/mdt?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&FORMAT=image/tiff&COVERAGEID=Elevacion4258_25&SUBSET=Lat(${s.toFixed(6)},${n.toFixed(6)})&SUBSET=Long(${w.toFixed(6)},${e.toFixed(6)})`,45000)).arrayBuffer();
-  if(my!==undefined&&my!==rSeq)return;
-  const g=parseTiff(buf);const lon0=g.lon0+g.dLon/2,lat0=g.lat0-g.dLat/2;let bad=0;
-  for(const p of r.pts){const fx=(p[1]-lon0)/g.dLon,fy=(lat0-p[0])/g.dLat;const i=Math.floor(fx),j=Math.floor(fy);
-   if(i<0||j<0||i>=g.W-1||j>=g.H-1){bad++;continue}const a=fx-i,b=fy-j,H=g.data,W=g.W;
-   const v=(H[j*W+i]*(1-a)+H[j*W+i+1]*a)*(1-b)+(H[(j+1)*W+i]*(1-a)+H[(j+1)*W+i+1]*a)*b;if(v>-500&&v<9000)p[2]=v;else bad++}
-  r.eleSrc=bad?`MDT 25 m del IGN (${bad} puntos con dato de BRouter)`:'MDT 25 m del IGN';
- }catch(err){r.eleNote='No se pudo leer el MDT del IGN ('+esc(err.message)+'): se usa la altitud de BRouter.'}
-}
-function parseTiff(buf){
- const d=new DataView(buf);const le=d.getUint16(0)===0x4949;const u16=o=>d.getUint16(o,le),u32=o=>d.getUint32(o,le);
- if(u16(2)!==42)throw new Error('respuesta no es un TIFF');
- const ifd=u32(4),n=u16(ifd),T={};
- for(let i=0;i<n;i++){const e=ifd+2+i*12,tag=u16(e),type=u16(e+2),cnt=u32(e+4);const inl=(type===3&&cnt<=2)||(type===4&&cnt===1);T[tag]={type,cnt,val:inl?(type===3?u16(e+8):u32(e+8)):u32(e+8)}}
- const W=T[256].val,H=T[257].val,bps=T[258].val,sf=T[339]?T[339].val:1;
- if(T[259].val!==1)throw new Error('TIFF comprimido');
- const arr=t=>{const a=[];for(let i=0;i<t.cnt;i++)a.push(t.cnt===1?t.val:(t.type===3?u16(t.val+i*2):u32(t.val+i*4)));return a};
- const offs=arr(T[273]),cnts=arr(T[279]);const out=new Float32Array(W*H);let k=0;const bpp=bps/8;
- for(let s=0;s<offs.length;s++)for(let j=0;j<cnts[s]&&k<W*H;j+=bpp)out[k++]=bps===16?(sf===2?d.getInt16(offs[s]+j,le):d.getUint16(offs[s]+j,le)):(sf===3?d.getFloat32(offs[s]+j,le):d.getInt32(offs[s]+j,le));
- if(k!==W*H)throw new Error('TIFF incompleto');
- const dbl=(t,c)=>Array.from({length:c},(_,i)=>d.getFloat64(t.val+i*8,le));const sc=dbl(T[33550],3),tp=dbl(T[33922],6);
- return {W,H,data:out,lon0:tp[3],lat0:tp[4],dLon:sc[0],dLat:sc[1]};
-}
-
-// ---------- Análisis ----------
-const SLOPES=[[5,'#4caf50','< 5 %'],[10,'#cddc39','5–10 %'],[15,'#ffc107','10–15 %'],[20,'#ff7043','15–20 %'],[1e9,'#c62828','> 20 %']];
-const SAC={hiking:'T1',mountain_hiking:'T2',demanding_mountain_hiking:'T3',alpine_hiking:'T4',demanding_alpine_hiking:'T5',difficult_alpine_hiking:'T6'};
-function analyse(){
- if(!res)return;const P=res.pts;
- // distancia acumulada
- const cum=[0];for(let i=1;i<P.length;i++)cum.push(cum[i-1]+dist(P[i-1],P[i]));
- const D=cum[cum.length-1];
- // desnivel con umbral de 3 m (mismo criterio que el visor 3D)
- let up=0,dn=0,last=null,mx=-1e9,mn=1e9;for(const p of P){const e=p[2];if(e==null)continue;mx=Math.max(mx,e);mn=Math.min(mn,e);if(last==null){last=e;continue}const df=e-last;if(Math.abs(df)>=3){df>0?up+=df:dn-=df;last=e}}
- // pendiente por tramos de 100 m
- const sl=[];let j0=0;const bins=SLOPES.map(()=>0);let maxUp=0,maxDn=0;
- for(let i=1;i<P.length;i++){if(cum[i]-cum[j0]>=100||i===P.length-1){const dd=cum[i]-cum[j0];if(dd>0&&P[i][2]!=null&&P[j0][2]!=null){const g=(P[i][2]-P[j0][2])/dd*100;sl.push([cum[j0],cum[i],g]);
-   const a=Math.abs(g);bins[SLOPES.findIndex(s=>a<s[0])]+=dd;maxUp=Math.max(maxUp,g);maxDn=Math.min(maxDn,g)}j0=i}}
- res.cum=cum;res.sl=sl;res.D=D;res.up=up;res.dn=dn;
- // tiempo
- let tTxt;
- if(mode==='hike'||imported&&mode==='hike'){const h=D/1000/4,v=up/300+dn/500;const t=Math.max(h,v)+Math.min(h,v)/2;tTxt=hm(t)+' <span class="mut">(DIN 33466, sin paradas)</span>'}
- else if(!imported&&res.brTime){tTxt=hm(res.brTime/3600)+' <span class="mut">(estimación de BRouter, sin paradas)</span>'}
- else tTxt='<span class="mut">sin estimación (GPX importado)</span>';
- // terreno según OSM
- const ty={asfalto:0,pista:0,sendero:0,escalones:0,otro:0};const warn=[];let sacMax=0,noBike=0,priv=0,steps=0,mtbS=0,sacHard=0,known=0;
- for(const s of res.segs||[]){const t=s.tags,d=s.d;known+=d;
-  const hw=t.highway||'';const paved=/^(asphalt|paved|concrete|paving_stones|sett)$/.test(t.surface||'');
-  if(hw==='steps'){ty.escalones+=d;steps+=d}
-  else if(hw==='track')ty[paved?'asfalto':'pista']+=d;
-  else if(/^(path|footway|bridleway|via_ferrata)$/.test(hw))ty[paved?'asfalto':'sendero']+=d;
-  else if(hw)ty.asfalto+=d;else ty.otro+=d;
-  const sc=SAC[t.sac_scale];if(sc){const n=+sc[1];sacMax=Math.max(sacMax,n);if(n>=3)sacHard+=d}
-  if(t.bicycle==='no'||t.bicycle==='dismount')noBike+=d;
-  if(/^(private|no)$/.test(t.access||'')||/^(private|no)$/.test(t.foot||''))priv+=d;
-  if(t['mtb:scale']&&parseInt(t['mtb:scale'])>=3)mtbS+=d}
- // avisos de validez
- if(res.far&&res.far.length)warn.push(['wa',`${res.far.length===1?'Un punto de paso queda':res.far.length+' puntos de paso quedan'} a más de 150 m de cualquier camino (el ${res.far.map(x=>x[0]+1).join(', ')}). La ruta pasa por el camino más cercano.`]);
- if(priv)warn.push(['er',`${fmt(priv)} m por caminos marcados como privados o de paso prohibido.`]);
- if(mode!=='hike'){
-  if(noBike)warn.push(['er',`${fmt(noBike)} m por tramos donde la bici está prohibida o hay que bajarse.`]);
-  if(steps)warn.push(['wa',`${fmt(steps)} m de escalones.`]);
-  if(sacHard)warn.push(['wa',`${fmt(sacHard)} m de sendero de montaña exigente (T3 o más): con bici, probablemente a pie.`]);
-  if(mtbS)warn.push(['wa',`${fmt(mtbS)} m con dificultad BTT alta (escala MTB 3 o más).`]);
-  if(maxUp>20)warn.push(['wa',`Hay rampas de subida de hasta ${fmt(maxUp)} % (en tramos de 100 m).`]);
-  if(!imported)warn.push(['wa','En modo bici, BRouter no informa de la dificultad técnica del sendero (escala SAC o MTB): fíjate en el tipo de camino y en las pendientes.']);
- }else{
-  if(sacMax>=4)warn.push(['er',`Terreno alpino (hasta ${'T'+sacMax}): requiere experiencia y material.`]);
-  else if(sacMax===3)warn.push(['wa','Hay tramos de sendero de montaña exigente (T3): pasos con manos o expuestos.']);
- }
- if(!imported&&!warn.length)warn.push(['ok',`Ruta válida para ${MODES[mode].name.toLowerCase()} según OpenStreetMap: sin prohibiciones ni tramos conflictivos conocidos.`]);
- if(imported)warn.push(['wa','GPX importado: no tengo los datos del tipo de camino, así que no puedo comprobar si es válido para la actividad.']);
- if(res.eleNote)warn.push(['wa',res.eleNote]);
- const tyT=Object.values(ty).reduce((a,b)=>a+b,0);
- const TYC={asfalto:'#90a4ae',pista:'#a1662f',sendero:'#e53935',escalones:'#8e24aa',otro:'#555'};
- const tyBar=tyT?`<div class="bar">${Object.entries(ty).filter(e=>e[1]>0).map(([k,v])=>`<i style="width:${v/tyT*100}%;background:${TYC[k]}"></i>`).join('')}</div><div class="leg">${Object.entries(ty).filter(e=>e[1]>0).map(([k,v])=>`<span><i style="background:${TYC[k]}"></i>${k} ${fmt(v/tyT*100)} %</span>`).join('')}</div>`:'';
- const sT=bins.reduce((a,b)=>a+b,0);
- const slBar=sT?`<div class="bar">${bins.map((v,i)=>v>0?`<i style="width:${v/sT*100}%;background:${SLOPES[i][1]}"></i>`:'').join('')}</div><div class="leg">${bins.map((v,i)=>v>0?`<span><i style="background:${SLOPES[i][1]}"></i>${SLOPES[i][2]}: ${fmt(v/sT*100)} %</span>`:'').join('')}</div>`:'';
- $('#stats').innerHTML=`<h3>Ruta</h3><table>
-  <tr><td>Distancia</td><td><b>${fmt(D/1000,2)} km</b></td></tr>
-  <tr><td>Desnivel positivo</td><td><b>+${fmt(up)} m</b></td></tr>
-  <tr><td>Desnivel negativo</td><td>−${fmt(dn)} m</td></tr>
-  <tr><td>Altitud máxima / mínima</td><td>${mx>-1e9?fmt(mx)+' / '+fmt(mn)+' m':'—'}</td></tr>
-  <tr><td>Rampa máxima (100 m)</td><td>${fmt(maxUp)} % subiendo · ${fmt(-maxDn)} % bajando</td></tr>
-  <tr><td>Tiempo</td><td>${tTxt}</td></tr>
-  ${mode==='hike'&&sacMax?`<tr><td>Dificultad máxima de sendero</td><td>T${sacMax}</td></tr>`:''}
- </table>
- <div class="mut" style="margin-top:4px">Altitud: ${res.eleSrc||'—'}. Desnivel con umbral de 3 m.</div>
- ${slBar?'<h3>Pendientes</h3>'+slBar:''}
- ${tyBar?'<h3>Tipo de camino</h3>'+tyBar:''}
- <h3>¿Es válida?</h3>${warn.map(w=>`<div class="w ${w[0]}">${w[1]}</div>`).join('')}`;
- ['bGpx','b3d','bShare'].forEach(i=>$('#'+i).disabled=false);
- drawProfile();
- if(!imported)history.replaceState(null,'',`#${mode};${wps.map(p=>p[0].toFixed(5)+','+p[1].toFixed(5)).join(';')}`);
-}
-const hm=t=>{const h=Math.floor(t),m=Math.round((t-h)*60);return m===60?`${h+1} h 00 min`:`${h} h ${String(m).padStart(2,'0')} min`};
-
-function drawRoute(){
- if(routeLine){map.removeLayer(routeLine);map.removeLayer(routeCasing)}
- const ll=res.pts.map(p=>[p[0],p[1]]);
- routeCasing=L.polyline(ll,{color:'#000',weight:8,opacity:.45,interactive:false}).addTo(map);
- routeLine=L.polyline(ll,{color:mode==='hike'?'#ff3d00':'#2962ff',weight:5,opacity:.95,interactive:false}).addTo(map);
- wpLayer.eachLayer(l=>l.setZIndexOffset(1000));
-}
-
-// ---------- Perfil ----------
-const pc=$('#pc'),tip=$('#tip');
-function drawProfile(hx){
- const r=pc.getBoundingClientRect(),dpr=devicePixelRatio||1;pc.width=r.width*dpr;pc.height=r.height*dpr;const c=pc.getContext('2d');c.scale(dpr,dpr);
- const W=r.width,H=r.height;c.clearRect(0,0,W,H);
- if(!res||!res.cum){c.fillStyle='#9fb3a8';c.font='13px system-ui';c.fillText('El perfil de altitud aparece aquí cuando trazas una ruta.',16,H/2);return}
- const P=res.pts,cum=res.cum,D=res.D;let mn=1e9,mx=-1e9;for(const p of P)if(p[2]!=null){mn=Math.min(mn,p[2]);mx=Math.max(mx,p[2])}
- const pad={l:46,r:12,t:12,b:22};const rng=Math.max(50,mx-mn);const lo=mn-rng*.08,hi=mx+rng*.08;
- const X=d=>pad.l+d/D*(W-pad.l-pad.r),Y=e=>pad.t+(1-(e-lo)/(hi-lo))*(H-pad.t-pad.b);
- // rejilla
- c.strokeStyle='rgba(255,255,255,.08)';c.fillStyle='#9fb3a8';c.font='11px system-ui';c.lineWidth=1;
- const st=[10,20,50,100,200,250,500,1000].find(s=>(hi-lo)/s<=5)||1000;
- for(let e=Math.ceil(lo/st)*st;e<=hi;e+=st){const y=Y(e);c.beginPath();c.moveTo(pad.l,y);c.lineTo(W-pad.r,y);c.stroke();c.fillText(fmt(e)+' m',4,y+4)}
- const ks=[0.5,1,2,5,10,20,50].find(s=>D/1000/s<=10)||50;
- for(let k=0;k<=D/1000;k+=ks){const x=X(k*1000);c.fillText(fmt(k,ks<1?1:0)+' km',x-10,H-6)}
- // relleno por pendiente
- for(const [a,b,g] of res.sl){const col=SLOPES[SLOPES.findIndex(s=>Math.abs(g)<s[0])][1];c.fillStyle=col+'cc';c.beginPath();
-  let first=true;for(let i=0;i<P.length;i++){if(cum[i]<a||cum[i]>b||P[i][2]==null)continue;const x=X(cum[i]),y=Y(P[i][2]);if(first){c.moveTo(x,H-pad.b);c.lineTo(x,y);first=false}else c.lineTo(x,y)}
-  c.lineTo(X(b),H-pad.b);c.closePath();c.fill()}
- c.strokeStyle='#fff';c.lineWidth=1.5;c.beginPath();let f=true;for(let i=0;i<P.length;i++){if(P[i][2]==null)continue;const x=X(cum[i]),y=Y(P[i][2]);f?c.moveTo(x,y):c.lineTo(x,y);f=false}c.stroke();
- if(hx!=null){c.strokeStyle='#ffeb3b';c.beginPath();c.moveTo(hx,pad.t);c.lineTo(hx,H-pad.b);c.stroke()}
- pc._X=X;pc._pad=pad;pc._W=W;
-}
-addEventListener('resize',()=>drawProfile());
-function profHover(clientX){if(!res||!res.cum)return;const r=pc.getBoundingClientRect();const x=clientX-r.left;const {l,r:rr}=pc._pad;const d=Math.max(0,Math.min(1,(x-l)/(pc._W-l-rr)))*res.D;
- let i=res.cum.findIndex(c=>c>=d);if(i<0)i=res.cum.length-1;const p=res.pts[i];const s=res.sl.find(s=>d>=s[0]&&d<=s[1]);
- drawProfile(pc._X(res.cum[i]));tip.style.display='block';tip.style.left=Math.min(x+10,r.width-170)+'px';tip.style.top='6px';
- tip.textContent=`km ${fmt(res.cum[i]/1000,2)} · ${p[2]!=null?fmt(p[2])+' m':''}${s?' · '+fmt(s[2])+' %':''}`;
- if(!hoverMk)hoverMk=L.circleMarker(p,{radius:7,color:'#000',weight:2,fillColor:'#ffeb3b',fillOpacity:1}).addTo(map);else hoverMk.setLatLng(p)}
-pc.addEventListener('pointermove',e=>profHover(e.clientX));
-pc.addEventListener('pointerleave',()=>{tip.style.display='none';drawProfile();if(hoverMk){map.removeLayer(hoverMk);hoverMk=null}});
-
-// ---------- GPX ----------
-$('#bGpx').onclick=()=>{if(!res)return;const name=res.name+' '+new Date().toISOString().slice(0,10);
- const g=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="El Sherpa 3D (BRouter + MDT IGN)" xmlns="http://www.topografix.com/GPX/1/1">\n<metadata><name>${esc(name)}</name></metadata>\n<trk><name>${esc(name)}</name><type>${mode==='hike'?'hiking':'mountain_biking'}</type><trkseg>\n`+
-  res.pts.map(p=>`<trkpt lat="${p[0].toFixed(6)}" lon="${p[1].toFixed(6)}">${p[2]!=null?`<ele>${p[2].toFixed(1)}</ele>`:''}</trkpt>`).join('\n')+`\n</trkseg></trk>\n</gpx>\n`;
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([g],{type:'application/gpx+xml'}));a.download=name.replace(/[^\wáéíóúñÁÉÍÓÚÑ .-]/g,'')+'.gpx';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)};
-$('#fG').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
- try{const x=new DOMParser().parseFromString(await f.text(),'application/xml');const pts=[...x.querySelectorAll('trkpt,rtept')].map(p=>{const el=p.querySelector('ele');return [+p.getAttribute('lat'),+p.getAttribute('lon'),el?+el.textContent:null]});
-  if(pts.length<2)throw new Error('no tiene puntos');
-  imported=true;wps=[];drawWps();res={pts,segs:[],name:f.name.replace(/\.gpx$/i,''),far:[]};setMsg('Leyendo altitudes del IGN…');rSeq++;await addIGN(res);drawRoute();analyse();setMsg('');map.fitBounds(routeLine.getBounds(),{padding:[20,20]})}
- catch(err){setMsg('No se pudo leer el GPX: '+esc(err.message),'er')}};
-$('#b3d').onclick=()=>{if(!res)return;try{localStorage.setItem('montanas3d-ruta',JSON.stringify({name:res.name,pts:res.pts.map(p=>[+p[0].toFixed(6),+p[1].toFixed(6),p[2]!=null?Math.round(p[2]*10)/10:null])}));location.href='index.html#ruta'}catch(e){setMsg('Tu navegador no deja pasar la ruta al visor 3D. Descarga el GPX y ábrelo allí.','wa')}};
-$('#bShare').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);setMsg('Enlace copiado.','ok')}catch(e){setMsg('Copia este enlace: '+esc(location.href),'wa')}};
-
-// ---------- Buscar y posición ----------
-$('#fS').onsubmit=async e=>{e.preventDefault();const q=$('#qS').value.trim();if(!q)return;$('#sRes').innerHTML='<div class="mut">Buscando…</div>';
- try{const j=await (await fetchT('https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=es&accept-language=es&q='+encodeURIComponent(q),15000)).json();
-  $('#sRes').innerHTML=j.length?j.map((r,i)=>`<div class="it" data-i="${i}">${esc(r.display_name.split(',').slice(0,3).join(','))}</div>`).join(''):'<div class="mut">Sin resultados en España.</div>';
-  $('#sRes').onclick=ev=>{const it=ev.target.closest('.it');if(!it)return;const r=j[+it.dataset.i];map.setView([+r.lat,+r.lon],15);$('#sRes').innerHTML=''}}
- catch(err){$('#sRes').innerHTML='<div class="mut">El buscador no responde.</div>'}};
-$('#bMe').onclick=()=>{if(!navigator.geolocation)return setMsg('Este navegador no da la posición.','wa');navigator.geolocation.getCurrentPosition(p=>map.setView([p.coords.latitude,p.coords.longitude],15),()=>setMsg('No se pudo obtener tu posición (permiso denegado o sin señal).','wa'),{enableHighAccuracy:true,timeout:15000})};
-
-// ---------- Arranque: ruta compartida ----------
-(function(){const h=decodeURIComponent(location.hash.slice(1));if(!h)return drawProfile();const parts=h.split(';');
- if(MODES[parts[0]]){const b=document.querySelector(`#mode button[data-m="${parts[0]}"]`);b&&b.click()}
- wps=parts.slice(1).map(s=>s.split(',').map(Number)).filter(p=>p.length===2&&p.every(n=>!isNaN(n)));
- if(wps.length){drawWps();map.fitBounds(L.latLngBounds(wps),{padding:[40,40],maxZoom:15});fitOnce=true;route()}else drawProfile()})();
-</script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+<script type="module" src="rutas.js"></script>
 </body>
 </html>
