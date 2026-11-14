@@ -635,6 +635,8 @@ function loop(now){requestAnimationFrame(loop);
 resize();requestAnimationFrame(loop);
 
 addEventListener('hashchange',()=>{if(decodeURIComponent(location.hash.slice(1))!==lastHash)location.reload()});
+// para comprobaciones desde la consola del navegador (no cambia nada)
+globalThis.__sherpa={get Z(){return Z},get LB(){return LB},get LP(){return LP},camera,controls,U};
 // ---------- Arranque ----------
 (function start(){
  const raw=decodeURIComponent(location.hash.slice(1));
