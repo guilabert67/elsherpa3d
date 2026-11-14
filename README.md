@@ -50,5 +50,5 @@ como en cualquier visita web. Los ficheros de ruta se leen en el propio disposit
   es la estimación de BRouter. En los dos casos, sin contar paradas.
 - El desnivel se cuenta con un umbral de 3 m, igual en el visor y en el planificador.
 - Zonas de hasta 30 km de lado en el visor. El MDT de 5 m, solo hasta 8 km.
-- Inspirado en «La Pedriza en 3D» (lapedrizaen3d.netlify.app). El código es propio, no está
-  copiado de allí.
+- Inspirado en «La Pedriza en 3D», que no es de Emilio. El código de este repositorio es propio y
+  no está copiado de esa web.
