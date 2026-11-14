@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1a14">
-<title>Montañas de España en 3D</title>
+<title>El Sherpa 3D · Montañas de España</title>
 <style>
 :root{--bg:#0b1a14;--panel:rgba(14,26,22,.92);--line:rgba(255,255,255,.12);--tx:#eef3ef;--mut:#9fb3a8;--acc:#7fd1a2;--warn:#ffcf6e;--err:#ff8a7a}
 *{box-sizing:border-box}
@@ -57,7 +57,7 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
 <body>
 <canvas id="c"></canvas>
 <div id="labels"></div>
-<div id="title">Montañas de España en 3D<small id="zname">Elige una sierra</small></div>
+<div id="title">El Sherpa 3D<small id="zname">Elige una sierra</small></div>
 
 <div id="bar">
   <button data-p="pZonas"><span>⛰</span>Zonas</button>
@@ -292,7 +292,7 @@ let loadSeq=0;
 async function loadZone(z){
  const seq=++loadSeq;
  Z=z;$('#zname').textContent=`${z.name}${z.sub?' · '+z.sub:''} · ${z.size} km`;
- document.title=z.name+' en 3D';
+ document.title=z.name+' · El Sherpa 3D';
  const half=z.size/2;
  const bb={s:z.lat-half*1000/M_LAT,n:z.lat+half*1000/M_LAT,w:z.lon-half*1000/mLon(z.lat),e:z.lon+half*1000/mLon(z.lat)};
  z.bb=bb;

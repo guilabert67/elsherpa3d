@@ -1,4 +1,6 @@
-# Montañas de España en 3D
+# El Sherpa 3D
+
+Montañas de España en 3D y rutas de senderismo y BTT.
 
 Dos páginas web, sin instalación y sin servidor propio:
 
@@ -13,7 +15,7 @@ Las dos están enlazadas: desde el planificador, «Ver en 3D» abre la ruta en e
 
 1. Sube estos ficheros a la rama `main` del repositorio.
 2. En GitHub: **Settings › Pages › Build and deployment › Deploy from a branch › `main` / `(root)`**.
-3. Al cabo de uno o dos minutos queda en `https://guilabert67.github.io/montanas-3d/`.
+3. Al cabo de uno o dos minutos queda en `https://guilabert67.github.io/elsherpa3d/`.
 
 Sin paso de construcción: lo que hay en el repositorio es lo que se sirve.
 

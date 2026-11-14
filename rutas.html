@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1a14">
-<title>Rutas de montaña: senderismo y BTT</title>
+<title>El Sherpa 3D · Rutas de senderismo y BTT</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{--bg:#0b1a14;--panel:#10221b;--line:rgba(255,255,255,.12);--tx:#eef3ef;--mut:#9fb3a8;--acc:#7fd1a2;--warn:#ffcf6e;--err:#ff8a7a}
@@ -45,7 +45,7 @@ a{color:var(--acc)}
 <body>
 <div id="app">
 <div id="side">
-  <h1>Rutas de montaña</h1>
+  <h1>El Sherpa 3D · Rutas</h1>
   <div class="mut">Senderismo y bici de montaña por caminos reales · <a href="index.html">Visor 3D</a></div>
 
   <h3>Actividad</h3>
@@ -319,7 +319,7 @@ pc.addEventListener('pointerleave',()=>{tip.style.display='none';drawProfile();i
 
 // ---------- GPX ----------
 $('#bGpx').onclick=()=>{if(!res)return;const name=res.name+' '+new Date().toISOString().slice(0,10);
- const g=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Rutas de montaña (BRouter + MDT IGN)" xmlns="http://www.topografix.com/GPX/1/1">\n<metadata><name>${esc(name)}</name></metadata>\n<trk><name>${esc(name)}</name><type>${mode==='hike'?'hiking':'mountain_biking'}</type><trkseg>\n`+
+ const g=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="El Sherpa 3D (BRouter + MDT IGN)" xmlns="http://www.topografix.com/GPX/1/1">\n<metadata><name>${esc(name)}</name></metadata>\n<trk><name>${esc(name)}</name><type>${mode==='hike'?'hiking':'mountain_biking'}</type><trkseg>\n`+
   res.pts.map(p=>`<trkpt lat="${p[0].toFixed(6)}" lon="${p[1].toFixed(6)}">${p[2]!=null?`<ele>${p[2].toFixed(1)}</ele>`:''}</trkpt>`).join('\n')+`\n</trkseg></trk>\n</gpx>\n`;
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([g],{type:'application/gpx+xml'}));a.download=name.replace(/[^\wáéíóúñÁÉÍÓÚÑ .-]/g,'')+'.gpx';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)};
 $('#fG').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
