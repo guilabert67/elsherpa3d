@@ -366,8 +366,7 @@ function buildLabels(){
   const h=hAt(p.lat,p.lon);if(h==null)continue;const [x,z]=toLocal(p.lat,p.lon);
   const el=document.createElement('div');el.className='lb'+(p.hut?' hut':p.t==='saddle'?' sad':'');
   const ele=p.ele&&!isNaN(parseFloat(p.ele))?Math.round(parseFloat(p.ele)):null;
-  el.innerHTML=`${p.hut?'⌂ ':''}${esc(p.name)}${ele!=null?`<small>${fmt(ele)} m</small>`:''}`;el.onclick=e=>{e.stopPropagation();showCard(p,h)};
-  labelsEl.appendChild(el);labels.push({el,x,z,h,vis:false})}
+  el.innerHTML=`${p.hut?'⌂ ':''}${esc(p.name)}${ele!=null?`<small>${fmt(ele)} m</small>`:''}`;labelsEl.appendChild(el);labels.push({el,x,z,h,p,vis:false})}
  labelsEl.style.display=$('#cLabels').checked?'':'none';
 }
 const _v=new THREE.Vector3();let lbFrame=0;
@@ -487,9 +486,12 @@ $('#drawMode').onchange=()=>drawRouteUpdate();
 let tap=null;
 canvas.addEventListener('pointerdown',e=>{tap={x:e.clientX,y:e.clientY,t:performance.now()}});
 canvas.addEventListener('pointerup',e=>{if(!tap||!Z||!LB)return;if(Math.hypot(e.clientX-tap.x,e.clientY-tap.y)>6||performance.now()-tap.t>500)return;
+ if(!draw.on&&labelsEl.style.display!=='none'){const lb=labelAt(e.clientX,e.clientY);if(lb){showCard(lb.p,lb.h);return}}
  const ll=pick(e.clientX,e.clientY);if(!ll)return;
  if(draw.on){draw.wps.push(ll);drawRouteUpdate();return}
  if($('#cTrails').checked)trailCard(ll)});
+// los nombres no tapan el mapa: un toque sobre un nombre abre su ficha
+function labelAt(x,y){for(const L of labels){if(!L.vis)continue;const r=L.el.getBoundingClientRect();if(x>=r.left-4&&x<=r.right+4&&y>=r.top-4&&y<=r.bottom+4)return L}return null}
 function segDist(p,a,b){const kx=mLon(p[0]);const ax=(a[1]-p[1])*kx,ay=(a[0]-p[0])*M_LAT,bx=(b[1]-p[1])*kx,by=(b[0]-p[0])*M_LAT;const dx=bx-ax,dy=by-ay;const t=Math.max(0,Math.min(1,-(ax*dx+ay*dy)/((dx*dx+dy*dy)||1)));return Math.hypot(ax+t*dx,ay+t*dy)}
 function trailCard(ll){const tol=Math.max(20,camera.position.distanceTo(controls.target)*0.012);let best=null,bd=tol;
  for(const L of [LP,LB]){if(!L||!L.ways)continue;for(const w of L.ways){const g=w.g;for(let i=1;i<g.length;i++){const d=segDist(ll,g[i-1],g[i]);if(d<bd){bd=d;best=w}}}if(best)break}
@@ -516,7 +518,7 @@ async function drawRouteUpdate(){
  const name='Ruta dibujada ('+MODES[mode].name+')';
  if(draw.route){Object.assign(draw.route,{name,pts:r.pts,lv,bike:MODES[mode].bike,ign:true});renderRouteList();redraw()}else draw.route=addRoute({name,pts:r.pts,lv,bike:MODES[mode].bike,kind:'drawn',ign:true});
  $('#drawMsg').textContent='';
- $('#drawReport').innerHTML=rep.html+`<div class="row"><button class="btn p" id="bDrawGpx">⬇ GPX para el GPS</button><a class="btn" href="rutas.html#${mode};${draw.wps.map(p=>p[0].toFixed(5)+','+p[1].toFixed(5)).join(';')}">Abrir en el planificador</a></div>`;
+ $('#drawReport').innerHTML=rep.html+`<div class="row"><button class="btn p" id="bDrawGpx">⬇ GPX para el GPS</button><a class="btn" href="rutas.html#${mode};${draw.wps.map(p=>p[0].toFixed(6)+','+p[1].toFixed(6)).join(';')}">Abrir en el planificador</a></div>`;
  $('#bDrawGpx').onclick=()=>{const n=name+' '+new Date().toISOString().slice(0,10);download(safeName(n)+'.gpx',gpxText(n,r.pts,mode==='hike'?'hiking':'mountain_biking'),'application/gpx+xml')};
  selectRoute(draw.route);
 }
@@ -599,7 +601,8 @@ canvas.addEventListener('dblclick',e=>{if(draw.on||!Z)return;const ll=pick(e.cli
 
 // ---------- Compartir ----------
 function updateShare(){if(!Z)return;const t=controls.target,p=camera.position;
- history.replaceState(null,'',`#${Z.lat.toFixed(5)},${Z.lon.toFixed(5)},${Z.size},${baseKey},${encodeURIComponent(Z.name)},${[p.x,p.y,p.z,t.x,t.y,t.z].map(v=>Math.round(v)).join(',')}`);$('#shareUrl').value=location.href}
+ history.replaceState(null,'',`#${Z.lat.toFixed(5)},${Z.lon.toFixed(5)},${Z.size},${baseKey},${encodeURIComponent(Z.name)},${[p.x,p.y,p.z,t.x,t.y,t.z].map(v=>Math.round(v)).join(',')}`);$('#shareUrl').value=location.href;lastHash=decodeURIComponent(location.hash.slice(1))}
+let lastHash='';
 $('#bCopy').onclick=async()=>{updateShare();try{await navigator.clipboard.writeText($('#shareUrl').value);$('#bCopy').textContent='Copiado'}catch(e){$('#shareUrl').select();$('#bCopy').textContent='Cópialo a mano'}setTimeout(()=>$('#bCopy').textContent='Copiar',2000)};
 controls.addEventListener('end',()=>{clearTimeout(updateShare.t);updateShare.t=setTimeout(updateShare,600)});
 
@@ -631,6 +634,7 @@ function loop(now){requestAnimationFrame(loop);
  if(now-lastPatch>900){lastPatch=now;checkPatch()}}
 resize();requestAnimationFrame(loop);
 
+addEventListener('hashchange',()=>{if(decodeURIComponent(location.hash.slice(1))!==lastHash)location.reload()});
 // ---------- Arranque ----------
 (function start(){
  const raw=decodeURIComponent(location.hash.slice(1));

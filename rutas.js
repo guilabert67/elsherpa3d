@@ -43,7 +43,7 @@ async function trLoad(){
  const m=.01;const big={s:Math.floor((bb.s-m)/.02)*.02,n:Math.ceil((bb.n+m)/.02)*.02,w:Math.floor((bb.w-m)/.02)*.02,e:Math.ceil((bb.e+m)/.02)*.02};
  const key=[big.s,big.n,big.w,big.e].map(x=>x.toFixed(2)).join(',');if(key===trKey||trBusy)return;
  trBusy=true;$('#trMsg').textContent='Pidiendo la dificultad de los senderos…';
- try{const r=await trailsWithDifficulty(big);trWays=r.ways;trKey=key;trDraw();$('#trMsg').textContent=`${fmt(r.ways.length)} tramos con su dificultad (fuente: ${r.src}). Tócalos para ver su ficha.`}
+ try{const r=await trailsWithDifficulty(big);trWays=r.ways;trKey=key;trDraw();$('#trMsg').textContent=`${fmt(r.ways.length)} tramos con su dificultad (fuente: ${r.src}). Para ver la ficha de uno, pulsa «Consultar un sendero» y tócalo.`}
  catch(e){$('#trMsg').textContent='La dificultad de los senderos no está disponible ahora ('+(e.errs||[e.message]).join(' · ')+').'}
  trBusy=false;
 }
@@ -92,7 +92,7 @@ function show(){
  const rep=routeReport(res,mode);N=rep.N;LV=levelsPerPoint(res.pts,N.cum,res.segs,res.brLen);
  $('#stats').innerHTML=rep.html;drawRoute();prof();
  ['bGpx','b3d','bShare'].forEach(i=>$('#'+i).disabled=false);
- if(!imported)history.replaceState(null,'',`#${mode};${wps.map(p=>p[0].toFixed(5)+','+p[1].toFixed(5)).join(';')}`);
+ if(!imported)history.replaceState(null,'',`#${mode};${wps.map(p=>p[0].toFixed(6)+','+p[1].toFixed(6)).join(';')}`);
 }
 function colorAt(i){const how=$('#selCol').value;
  if(how==='act')return mode==='hike'?'#ff3d00':'#2962ff';
