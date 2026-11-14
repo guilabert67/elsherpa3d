@@ -4,7 +4,7 @@ Dos páginas web, sin instalación y sin servidor propio:
 
 | Página | Para qué sirve |
 |---|---|
-| `index.html` — **Visor 3D** | Cualquier sierra de España en 3D: relieve del IGN, ortofoto PNOA, mapas del IGN, senderos y nombres de cumbres y refugios. Catálogo de 41 sierras, buscador y botones para pasar a la zona de al lado. Carga tus rutas GPX, KML, KMZ o TCX. |
+| `index.html` — **Visor 3D** | Cualquier sierra de España en 3D: relieve del IGN, ortofoto PNOA, mapas del IGN, senderos y nombres de cumbres y refugios. Catálogo de 43 sierras, buscador y botones para pasar a la zona de al lado. Carga tus rutas GPX, KML, KMZ o TCX. |
 | `rutas.html` — **Rutas de montaña** | Planificador de rutas de senderismo, BTT y pistas que siguen caminos reales. Perfil de altitud coloreado por pendiente, desnivel, tiempo estimado, tipo de camino y avisos de validez (prohibido a bici, privado, dificultad T3 o más, escalones, rampas). Exporta en GPX para el GPS. |
 
 Las dos están enlazadas: desde el planificador, «Ver en 3D» abre la ruta en el visor.
